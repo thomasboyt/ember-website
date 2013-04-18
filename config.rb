@@ -17,8 +17,18 @@ activate :toc
 activate :highlighter
 
 activate :api_docs,
-  default_class: 'Ember',
-  repo_url: 'https://github.com/emberjs/ember.js'
+  ember: {
+    default_class: "Ember",
+    root: "api/ember",
+    data: "api",
+    repo_url: 'https://github.com/emberjs/ember.js'
+  },
+  data: {
+    default_class: "DS",
+    root: "api/data",
+    data: "data_api",
+    repo_url: "https://github.com/emberjs/data"
+  }
 
 ###
 # Blog
