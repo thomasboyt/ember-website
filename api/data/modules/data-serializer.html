@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Ember.js - data-serializer</title>
+    <link rel="shortcut icon" href="/images/favicon.png" />
+    <link href="/stylesheets/site.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/highlight.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="http://emberjs.com/blog/feed.xml" rel="alternate" type="application/atom+xml" title="Ember.js - Blog" />
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl = '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-27675533-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/javascripts/jquery.bxSlider.min.js"></script>
+
+    <script type="text/javascript">
+      $(function() {
+        var backToTop = $('#back-to-top');
+        var doc = $(document);
+        var offset = backToTop.offset();
+        var marginTop = 90;
+        var showing = false;
+
+        positionBackToTop = function(reset) {
+          if (reset) {
+            backToTop.css({
+              top: '',
+              position: ''
+            });
+            offset = backToTop.offset();
+          }
+
+          if (!showing && doc.scrollTop() > offset.top+200) {
+            showing = true;
+            backToTop.css({
+              position: 'fixed',
+              top: 20,
+              left: offset.left,
+              display:' block'
+            });
+          } else if (showing && doc.scrollTop() <= offset.top+200) {
+            showing = false;
+            backToTop.css({
+              display:'none'
+            });
+          }
+        };
+
+        if (backToTop.length) {
+          backToTop.on('click', function(evt) {
+            $('html,body').animate({scrollTop: 0}, 200);
+            return false;
+          });
+
+          doc.on('scroll', function() {
+            positionBackToTop();
+          });
+        }
+
+        $('.bx-wrapper, .bx-window').width(940);
+      });
+    </script>
+
+    
+    <script>
+      $(function() {
+        var ls = window['localStorage'];
+
+        // Restoring method visibility preference from localStorage
+        function initApiOptions() {
+          var type = this.getAttribute('data-type'),
+            checked = ls ? ls.getItem('api-options-' + type) : undefined;
+
+          if (checked != undefined) {
+            // Bools are stored as strings in localStorage
+            checked = checked == 'true';
+            $(this).attr('checked', checked);
+          }
+        };
+
+        // Type toggling
+        function toggleType() {
+          var type = this.getAttribute('data-type');
+
+          $('.'+type).toggle(this.checked);
+
+          if(ls)
+            ls.setItem('api-options-' + type, this.checked);
+        }
+
+        $('#api-options input').each(initApiOptions);
+        $('#api-options input').each(toggleType);
+        $('#api-options input').on('change', toggleType);
+
+        // Tabs
+        $('.tabs .pane').hide();
+        $('.tabs .pane:first').show();
+        $('.tabs ul li:first').addClass('active');
+
+        function showPane($tabs, href) {
+          var $ul = $tabs.find('> ul'),
+              $tab = $ul.find('a[href='+href+']'),
+              $pane = $(href);
+
+          $ul.find('li').removeClass('active');
+          $tab.parent().addClass('active');
+          $tabs.find('.pane').hide();
+
+          $pane.show();
+        }
+
+        $('.tabs > ul li a').click(function(){
+          var $el = $(this),
+              $tabs = $el.parents('.tabs'),
+              href = $el.attr('href');
+
+          showPane($tabs, href);
+
+          return false;
+        });
+
+        // Auto tab
+        function checkHash() {
+          var hash = window.location.hash;
+          var $el = $(hash);
+          if ($el.length > 0 && !$el.is(':visible')) {
+            showPane($el.parents('.tabs'), '#'+$el.parents('.pane').attr('id'));
+            $("html, body").scrollTop($el.offset().top);
+          } else if ($el.length == 0) {
+            showPane($('.tabs'), '#index');
+          }
+        }
+
+        $(window).on('hashchange', checkHash);
+        checkHash();
+      });
+    $(function(){
+      $("#toc-list .level-1 > a").not('[target=_blank]').click(function() {
+        $(this).parent().find('> ol').slideToggle(function() {
+          positionBackToTop(true);
+        });
+
+        return false;
+      });
+
+      $(function(){
+        $('.anchorable-toc').each(function(){
+          var toc = $(this),
+          id = toc.data('id') || toc.attr('id'),
+          href = "#" + id,
+          anchor = '<a class="toc-anchor" href="'+href+'"></a>';
+
+          toc.prepend(anchor);
+        });
+      });
+
+    });
+    </script>
+  
+  </head>
+
+  <body class="api api_data api_data_modules api_data_modules_data-serializer">
+    <div id="header">
+      <div id="wrapper">
+        <a id="logo" href="/">&nbsp;</a>
+        <ul id="nav">
+          <li><a href="/about">about</a></li>
+          <li><a href="/guides">guides</a></li>
+          <li><a href="/api/ember">api</a></li>
+          <li class="active"><a href="/api/data">ember data api</a></li>
+          <li><a href="/community">community</a></li>
+          <li><a href="/blog">blog</a></li>
+        </ul>
+        <div id="github">
+          <a href="https://github.com/emberjs/ember.js"><img src="/images/fork-us.png">Fork Us!</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="content-wrapper">
+      
+      
+        <div id="sidebar">
+          
+    <ol id='toc-list'>
+      <li class='level-1'><a href="https://github.com/emberjs/data/commit/30d9148" target="_blank"> Tag: 30d9148</a></li>
+
+      
+          <li class="level-1 selected">
+          
+        <a href='#'>Modules</a>
+        
+          <ol class="selected">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data.html">data</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-adapter.html">data-adapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-adapters.html">data-adapters</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-model.html">data-model</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-record-array.html">data-record-array</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-relationships.html">data-relationships</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 sub-selected">
+          
+              <a href="/api/data/modules/data-serializer.html">data-serializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-serializers.html">data-serializers</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-store.html">data-store</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-transaction.html">data-transaction</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-transforms.html">data-transforms</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+
+      
+          <li class="level-1 ">
+          
+        <a href='#'>Namespaces</a>
+        
+          <ol class="">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.JSONTransforms.html">DS.JSONTransforms</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+
+      
+          <li class="level-1 ">
+          
+        <a href='#'>Classes</a>
+        
+          <ol class="">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Adapter.html">DS.Adapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.BasicAdapter.html">DS.BasicAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FixtureSerializer.html">DS.FixtureSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.JSONSerializer.html">DS.JSONSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.ManyArray.html">DS.ManyArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Model.html">DS.Model</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RESTAdapter.html">DS.RESTAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RESTSerializer.html">DS.RESTSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RecordArray.html">DS.RecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Serializer.html">DS.Serializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.States.html">DS.States</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Store.html">DS.Store</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS._Mappable.html">DS._Mappable</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+  
+          <div id="back-to-top"><a id="back-top-top" href="#">&#11014; Back to Top</a></div>
+        </div>
+      
+      <div id="content" class="has-sidebar">
+          
+
+  
+  <h1>data-serializer Module</h1>
+
+  <p>Parent: <a href="/api/data/modules/data.html">data</a></p>
+
+
+<p><p>A serializer is responsible for serializing and deserializing a group of
+records.</p>
+
+<p><code>DS.Serializer</code> is an abstract base class designed to help you build a
+serializer that can read to and write from any serialized form.  While most
+applications will use <code>DS.JSONSerializer</code>, which reads and writes JSON, the
+serializer architecture allows your adapter to transmit things like XML,
+strings, or custom binary data.</p>
+
+<p>Typically, your application&#39;s <code>DS.Adapter</code> is responsible for both creating a
+serializer as well as calling the appropriate methods when it needs to
+materialize data or serialize a record.</p>
+
+<p>The serializer API is designed as a series of layered hooks that you can
+override to customize any of the individual steps of serialization and
+deserialization.</p>
+
+<p>The hooks are organized by the three responsibilities of the serializer:</p>
+
+<ol>
+<li>Determining naming conventions</li>
+<li>Serializing records into a serialized form</li>
+<li>Deserializing records from a serialized form</li>
+</ol>
+
+<p>Because Ember Data lazily materializes records, the deserialization
+step, and therefore the hooks you implement, are split into two phases:</p>
+
+<ol>
+<li>Extraction, where the serialized forms for multiple records are
+extracted from a single payload. The IDs of each record are also
+extracted for indexing.</li>
+<li>Materialization, where a newly-created record has its attributes
+and relationships initialized based on the serialized form loaded
+by the adapter.</li>
+</ol>
+
+<p>Additionally, a serializer can convert values from their JavaScript
+versions into their serialized versions via a declarative API.</p>
+
+<h2>Naming Conventions</h2>
+
+<p>One of the most common uses of the serializer is to map attribute names
+from the serialized form to your <code>DS.Model</code>. For example, in your model,
+you may have an attribute called <code>firstName</code>:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+</pre></td>
+  <td class="code"><pre>App.Person = DS.Model.extend({
+  <span class="key">firstName</span>: DS.attr(<span class="string"><span class="delimiter">'</span><span class="content">string</span><span class="delimiter">'</span></span>)
+});
+</pre></td>
+</tr></table>
+</div>
+<p>However, because the web API your adapter is communicating with is
+legacy, it calls this attribute <code>FIRST_NAME</code>.</p>
+
+<p>You can determine the attribute name used in the serialized form
+by implementing <code>keyForAttributeName</code>:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+</pre></td>
+  <td class="code"><pre><span class="function">keyForAttributeName</span>: <span class="keyword">function</span>(type, name) {
+  <span class="keyword">return</span> name.underscore.toUpperCase();
+}
+</pre></td>
+</tr></table>
+</div>
+<p>If your attribute names are not predictable, you can re-map them
+one-by-one using the adapter&#39;s <code>map</code> API:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+</pre></td>
+  <td class="code"><pre>App.Adapter.map(<span class="string"><span class="delimiter">'</span><span class="content">App.Person</span><span class="delimiter">'</span></span>, {
+  <span class="key">firstName</span>: { <span class="key">key</span>: <span class="string"><span class="delimiter">'</span><span class="content">*API_USER_FIRST_NAME*</span><span class="delimiter">'</span></span> }
+});
+</pre></td>
+</tr></table>
+</div>
+<p>This API will also work for relationships and primary keys. For
+example:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+</pre></td>
+  <td class="code"><pre>App.Adapter.map(<span class="string"><span class="delimiter">'</span><span class="content">App.Person</span><span class="delimiter">'</span></span>, {
+  <span class="key">primaryKey</span>: <span class="string"><span class="delimiter">'</span><span class="content">_id</span><span class="delimiter">'</span></span>
+});
+</pre></td>
+</tr></table>
+</div>
+<h2>Serialization</h2>
+
+<p>During the serialization process, a record or records are converted
+from Ember.js objects into their serialized form.</p>
+
+<p>These methods are designed in layers, like a delicious 7-layer
+cake (but with fewer layers).</p>
+
+<p>The main entry point for serialization is the <code>serialize</code>
+method, which takes the record and options.</p>
+
+<p>The <code>serialize</code> method is responsible for:</p>
+
+<ul>
+<li>turning the record&#39;s attributes (<code>DS.attr</code>) into
+attributes on the JSON object.</li>
+<li>optionally adding the record&#39;s ID onto the hash</li>
+<li>adding relationships (<code>DS.hasMany</code> and <code>DS.belongsTo</code>)
+to the JSON object.</li>
+</ul>
+
+<p>Depending on the backend, the serializer can choose
+whether to include the <code>hasMany</code> or <code>belongsTo</code>
+relationships on the JSON hash.</p>
+
+<p>For very custom serialization, you can implement your
+own <code>serialize</code> method. In general, however, you will want
+to override the hooks described below.</p>
+
+<h3>Adding the ID</h3>
+
+<p>The default <code>serialize</code> will optionally call your serializer&#39;s
+<code>addId</code> method with the JSON hash it is creating, the
+record&#39;s type, and the record&#39;s ID. The <code>serialize</code> method
+will not call <code>addId</code> if the record&#39;s ID is undefined.</p>
+
+<p>Your adapter must specifically request ID inclusion by
+passing <code>{ includeId: true }</code> as an option to <code>serialize</code>.</p>
+
+<p>NOTE: You may not want to include the ID when updating an
+existing record, because your server will likely disallow
+changing an ID after it is created, and the PUT request
+itself will include the record&#39;s identification.</p>
+
+<p>By default, <code>addId</code> will:</p>
+
+<ol>
+<li>Get the primary key name for the record by calling
+the serializer&#39;s <code>primaryKey</code> with the record&#39;s type.
+Unless you override the <code>primaryKey</code> method, this
+will be <code>&#39;id&#39;</code>.</li>
+<li>Assign the record&#39;s ID to the primary key in the
+JSON hash being built.</li>
+</ol>
+
+<p>If your backend expects a JSON object with the primary
+key at the root, you can just override the <code>primaryKey</code>
+method on your serializer subclass.</p>
+
+<p>Otherwise, you can override the <code>addId</code> method for
+more specialized handling.</p>
+
+<h3>Adding Attributes</h3>
+
+<p>By default, the serializer&#39;s <code>serialize</code> method will call
+<code>addAttributes</code> with the JSON object it is creating
+and the record to serialize.</p>
+
+<p>The <code>addAttributes</code> method will then call <code>addAttribute</code>
+in turn, with the JSON object, the record to serialize,
+the attribute&#39;s name and its type.</p>
+
+<p>Finally, the <code>addAttribute</code> method will serialize the
+attribute:</p>
+
+<ol>
+<li>It will call <code>keyForAttributeName</code> to determine
+the key to use in the JSON hash.</li>
+<li>It will get the value from the record.</li>
+<li>It will call <code>serializeValue</code> with the attribute&#39;s
+value and attribute type to convert it into a
+JSON-compatible value. For example, it will convert a
+Date into a String.</li>
+</ol>
+
+<p>If your backend expects a JSON object with attributes as
+keys at the root, you can just override the <code>serializeValue</code>
+and <code>keyForAttributeName</code> methods in your serializer
+subclass and let the base class do the heavy lifting.</p>
+
+<p>If you need something more specialized, you can probably
+override <code>addAttribute</code> and let the default <code>addAttributes</code>
+handle the nitty gritty.</p>
+
+<h3>Adding Relationships</h3>
+
+<p>By default, <code>serialize</code> will call your serializer&#39;s
+<code>addRelationships</code> method with the JSON object that is
+being built and the record being serialized. The default
+implementation of this method is to loop over all of the
+relationships defined on your record type and:</p>
+
+<ul>
+<li>If the relationship is a <code>DS.hasMany</code> relationship,
+call <code>addHasMany</code> with the JSON object, the record
+and a description of the relationship.</li>
+<li>If the relationship is a <code>DS.belongsTo</code> relationship,
+call <code>addBelongsTo</code> with the JSON object, the record
+and a description of the relationship.</li>
+</ul>
+
+<p>The relationship description has the following keys:</p>
+
+<ul>
+<li><code>type</code>: the class of the associated information (the
+first parameter to <code>DS.hasMany</code> or <code>DS.belongsTo</code>)</li>
+<li><code>kind</code>: either <code>hasMany</code> or <code>belongsTo</code></li>
+</ul>
+
+<p>The relationship description may get additional
+information in the future if more capabilities or
+relationship types are added. However, it will
+remain backwards-compatible, so the mere existence
+of new features should not break existing adapters.</p>
+</p>
+
+
+  
+  <h2>Classes and Namespaces</h2>
+  <ul>
+  
+    <li class=""><a href="/api/data/classes/DS.Serializer.html">DS.Serializer</a></li>
+  
+  </ul>
+
+
+      </div>
+    </div>
+
+    <div id="footer">
+      <div id="footer-wrapper">
+        <div class="info">
+          Copyright 2013 <a href="http://tilde.io">Tilde Inc.</a><br>
+          Design by <a href="http://www.heropixel.com">HeroPixel</a></br>
+          <a href="/team">Core Team</a> | <a href="/sponsors">Project Sponsors</a>
+        </div>
+        <div class="statement">Ember.js is free, open source and always will be.</div>
+        <div class="links">
+          <a class="twitter" href="http://twitter.com/emberjs">Twitter</a>
+          <a class="github" href="https://github.com/emberjs/ember.js">GitHub</a>
+          <a class="googleplus" href="https://plus.google.com/communities/106387049790387471205">Google+</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

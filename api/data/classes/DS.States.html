@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Ember.js - DS.States</title>
+    <link rel="shortcut icon" href="/images/favicon.png" />
+    <link href="/stylesheets/site.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/highlight.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="http://emberjs.com/blog/feed.xml" rel="alternate" type="application/atom+xml" title="Ember.js - Blog" />
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl = '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-27675533-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/javascripts/jquery.bxSlider.min.js"></script>
+
+    <script type="text/javascript">
+      $(function() {
+        var backToTop = $('#back-to-top');
+        var doc = $(document);
+        var offset = backToTop.offset();
+        var marginTop = 90;
+        var showing = false;
+
+        positionBackToTop = function(reset) {
+          if (reset) {
+            backToTop.css({
+              top: '',
+              position: ''
+            });
+            offset = backToTop.offset();
+          }
+
+          if (!showing && doc.scrollTop() > offset.top+200) {
+            showing = true;
+            backToTop.css({
+              position: 'fixed',
+              top: 20,
+              left: offset.left,
+              display:' block'
+            });
+          } else if (showing && doc.scrollTop() <= offset.top+200) {
+            showing = false;
+            backToTop.css({
+              display:'none'
+            });
+          }
+        };
+
+        if (backToTop.length) {
+          backToTop.on('click', function(evt) {
+            $('html,body').animate({scrollTop: 0}, 200);
+            return false;
+          });
+
+          doc.on('scroll', function() {
+            positionBackToTop();
+          });
+        }
+
+        $('.bx-wrapper, .bx-window').width(940);
+      });
+    </script>
+
+    
+    <script>
+      $(function() {
+        var ls = window['localStorage'];
+
+        // Restoring method visibility preference from localStorage
+        function initApiOptions() {
+          var type = this.getAttribute('data-type'),
+            checked = ls ? ls.getItem('api-options-' + type) : undefined;
+
+          if (checked != undefined) {
+            // Bools are stored as strings in localStorage
+            checked = checked == 'true';
+            $(this).attr('checked', checked);
+          }
+        };
+
+        // Type toggling
+        function toggleType() {
+          var type = this.getAttribute('data-type');
+
+          $('.'+type).toggle(this.checked);
+
+          if(ls)
+            ls.setItem('api-options-' + type, this.checked);
+        }
+
+        $('#api-options input').each(initApiOptions);
+        $('#api-options input').each(toggleType);
+        $('#api-options input').on('change', toggleType);
+
+        // Tabs
+        $('.tabs .pane').hide();
+        $('.tabs .pane:first').show();
+        $('.tabs ul li:first').addClass('active');
+
+        function showPane($tabs, href) {
+          var $ul = $tabs.find('> ul'),
+              $tab = $ul.find('a[href='+href+']'),
+              $pane = $(href);
+
+          $ul.find('li').removeClass('active');
+          $tab.parent().addClass('active');
+          $tabs.find('.pane').hide();
+
+          $pane.show();
+        }
+
+        $('.tabs > ul li a').click(function(){
+          var $el = $(this),
+              $tabs = $el.parents('.tabs'),
+              href = $el.attr('href');
+
+          showPane($tabs, href);
+
+          return false;
+        });
+
+        // Auto tab
+        function checkHash() {
+          var hash = window.location.hash;
+          var $el = $(hash);
+          if ($el.length > 0 && !$el.is(':visible')) {
+            showPane($el.parents('.tabs'), '#'+$el.parents('.pane').attr('id'));
+            $("html, body").scrollTop($el.offset().top);
+          } else if ($el.length == 0) {
+            showPane($('.tabs'), '#index');
+          }
+        }
+
+        $(window).on('hashchange', checkHash);
+        checkHash();
+      });
+    $(function(){
+      $("#toc-list .level-1 > a").not('[target=_blank]').click(function() {
+        $(this).parent().find('> ol').slideToggle(function() {
+          positionBackToTop(true);
+        });
+
+        return false;
+      });
+
+      $(function(){
+        $('.anchorable-toc').each(function(){
+          var toc = $(this),
+          id = toc.data('id') || toc.attr('id'),
+          href = "#" + id,
+          anchor = '<a class="toc-anchor" href="'+href+'"></a>';
+
+          toc.prepend(anchor);
+        });
+      });
+
+    });
+    </script>
+  
+  </head>
+
+  <body class="api api_data api_data_classes api_data_classes_DS">
+    <div id="header">
+      <div id="wrapper">
+        <a id="logo" href="/">&nbsp;</a>
+        <ul id="nav">
+          <li><a href="/about">about</a></li>
+          <li><a href="/guides">guides</a></li>
+          <li><a href="/api/ember">api</a></li>
+          <li class="active"><a href="/api/data">ember data api</a></li>
+          <li><a href="/community">community</a></li>
+          <li><a href="/blog">blog</a></li>
+        </ul>
+        <div id="github">
+          <a href="https://github.com/emberjs/ember.js"><img src="/images/fork-us.png">Fork Us!</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="content-wrapper">
+      
+      
+        <div id="sidebar">
+          
+    <ol id='toc-list'>
+      <li class='level-1'><a href="https://github.com/emberjs/data/commit/30d9148" target="_blank"> Tag: 30d9148</a></li>
+
+      
+          <li class="level-1 ">
+          
+        <a href='#'>Modules</a>
+        
+          <ol class="">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data.html">data</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-adapter.html">data-adapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-adapters.html">data-adapters</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-model.html">data-model</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-record-array.html">data-record-array</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-relationships.html">data-relationships</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-serializer.html">data-serializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-serializers.html">data-serializers</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-store.html">data-store</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-transaction.html">data-transaction</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-transforms.html">data-transforms</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+
+      
+          <li class="level-1 ">
+          
+        <a href='#'>Namespaces</a>
+        
+          <ol class="">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.JSONTransforms.html">DS.JSONTransforms</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+
+      
+          <li class="level-1 selected">
+          
+        <a href='#'>Classes</a>
+        
+          <ol class="selected">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Adapter.html">DS.Adapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.BasicAdapter.html">DS.BasicAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FixtureSerializer.html">DS.FixtureSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.JSONSerializer.html">DS.JSONSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.ManyArray.html">DS.ManyArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Model.html">DS.Model</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RESTAdapter.html">DS.RESTAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RESTSerializer.html">DS.RESTSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RecordArray.html">DS.RecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Serializer.html">DS.Serializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 sub-selected">
+          
+              <a href="/api/data/classes/DS.States.html">DS.States</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Store.html">DS.Store</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS._Mappable.html">DS._Mappable</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+  
+          <div id="back-to-top"><a id="back-top-top" href="#">&#11014; Back to Top</a></div>
+        </div>
+      
+      <div id="content" class="has-sidebar">
+          
+
+  
+  <h1>DS.States Class</h1>
+
+
+<div class="class-info">
+  
+    <p>Extends: Ember.State</p>
+  
+
+  
+
+  
+    <p>Defined in: <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/states.js#L9">packages/ember-data/lib/system/model/states.js:9</a></p>
+  
+
+  
+    <p>Module: <a href="/api/data/modules/data-model.html">data-model</a></p>
+  
+</div>
+
+  <div class="description">
+    <p>This file encapsulates the various states that a record can transition
+through during its lifecycle.</p>
+
+<h3>State Manager</h3>
+
+<p>A record&#39;s state manager explicitly tracks what state a record is in
+at any given time. For instance, if a record is newly created and has
+not yet been sent to the adapter to be saved, it would be in the
+<code>created.uncommitted</code> state.  If a record has had local modifications
+made to it that are in the process of being saved, the record would be
+in the <code>updated.inFlight</code> state. (These state paths will be explained
+in more detail below.)</p>
+
+<p>Events are sent by the record or its store to the record&#39;s state manager.
+How the state manager reacts to these events is dependent on which state
+it is in. In some states, certain events will be invalid and will cause
+an exception to be raised.</p>
+
+<p>States are hierarchical. For example, a record can be in the
+<code>deleted.start</code> state, then transition into the <code>deleted.inFlight</code> state.
+If a child state does not implement an event handler, the state manager
+will attempt to invoke the event on all parent states until the root state is
+reached. The state hierarchy of a record is described in terms of a path
+string. You can determine a record&#39;s current state by getting its manager&#39;s
+current state path:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+</pre></td>
+  <td class="code"><pre>record.get(<span class="string"><span class="delimiter">'</span><span class="content">stateManager.currentPath</span><span class="delimiter">'</span></span>);
+<span class="comment">//=&gt; &quot;created.uncommitted&quot;</span>
+</pre></td>
+</tr></table>
+</div>
+<p>The <code>DS.Model</code> states are themselves stateless. What we mean is that,
+though each instance of a record also has a unique instance of a
+<code>DS.StateManager</code>, the hierarchical states that each of <em>those</em> points
+to is a shared data structure. For performance reasons, instead of each
+record getting its own copy of the hierarchy of states, each state
+manager points to this global, immutable shared instance. How does a
+state know which record it should be acting on?  We pass a reference to
+the current state manager as the first parameter to every method invoked
+on a state.</p>
+
+<p>The state manager passed as the first parameter is where you should stash
+state about the record if needed; you should never store data on the state
+object itself. If you need access to the record being acted on, you can
+retrieve the state manager&#39;s <code>record</code> property. For example, if you had
+an event handler <code>myEvent</code>:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+</pre></td>
+  <td class="code"><pre><span class="function">myEvent</span>: <span class="keyword">function</span>(manager) {
+  <span class="keyword">var</span> record = manager.get(<span class="string"><span class="delimiter">'</span><span class="content">record</span><span class="delimiter">'</span></span>);
+  record.doSomething();
+}
+</pre></td>
+</tr></table>
+</div>
+<p>For more information about state managers in general, see the Ember.js
+documentation on <code>Ember.StateManager</code>.</p>
+
+<h3>Events, Flags, and Transitions</h3>
+
+<p>A state may implement zero or more events, flags, or transitions.</p>
+
+<h4>Events</h4>
+
+<p>Events are named functions that are invoked when sent to a record. The
+state manager will first look for a method with the given name on the
+current state. If no method is found, it will search the current state&#39;s
+parent, and then its grandparent, and so on until reaching the top of
+the hierarchy. If the root is reached without an event handler being found,
+an exception will be raised. This can be very helpful when debugging new
+features.</p>
+
+<p>Here&#39;s an example implementation of a state with a <code>myEvent</code> event handler:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+5
+</pre></td>
+  <td class="code"><pre>aState: DS.State.create({
+  <span class="function">myEvent</span>: <span class="keyword">function</span>(manager, param) {
+    console.log(<span class="string"><span class="delimiter">&quot;</span><span class="content">Received myEvent with </span><span class="delimiter">&quot;</span></span>+param);
+  }
+})
+</pre></td>
+</tr></table>
+</div>
+<p>To trigger this event:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+</pre></td>
+  <td class="code"><pre>record.send(<span class="string"><span class="delimiter">'</span><span class="content">myEvent</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">foo</span><span class="delimiter">'</span></span>);
+<span class="comment">//=&gt; &quot;Received myEvent with foo&quot;</span>
+</pre></td>
+</tr></table>
+</div>
+<p>Note that an optional parameter can be sent to a record&#39;s <code>send()</code> method,
+which will be passed as the second parameter to the event handler.</p>
+
+<p>Events should transition to a different state if appropriate. This can be
+done by calling the state manager&#39;s <code>transitionTo()</code> method with a path to the
+desired state. The state manager will attempt to resolve the state path
+relative to the current state. If no state is found at that path, it will
+attempt to resolve it relative to the current state&#39;s parent, and then its
+parent, and so on until the root is reached. For example, imagine a hierarchy
+like this:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+5
+</pre></td>
+  <td class="code"><pre>* created
+  * start &lt;-- currentState
+  * inFlight
+* updated
+  * inFlight
+</pre></td>
+</tr></table>
+</div>
+<p>If we are currently in the <code>start</code> state, calling
+<code>transitionTo(&#39;inFlight&#39;)</code> would transition to the <code>created.inFlight</code> state,
+while calling <code>transitionTo(&#39;updated.inFlight&#39;)</code> would transition to
+the <code>updated.inFlight</code> state.</p>
+
+<p>Remember that <em>only events</em> should ever cause a state transition. You should
+never call <code>transitionTo()</code> from outside a state&#39;s event handler. If you are
+tempted to do so, create a new event and send that to the state manager.</p>
+
+<h4>Flags</h4>
+
+<p>Flags are Boolean values that can be used to introspect a record&#39;s current
+state in a more user-friendly way than examining its state path. For example,
+instead of doing this:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+</pre></td>
+  <td class="code"><pre><span class="keyword">var</span> statePath = record.get(<span class="string"><span class="delimiter">'</span><span class="content">stateManager.currentPath</span><span class="delimiter">'</span></span>);
+<span class="keyword">if</span> (statePath === <span class="string"><span class="delimiter">'</span><span class="content">created.inFlight</span><span class="delimiter">'</span></span>) {
+  doSomething();
+}
+</pre></td>
+</tr></table>
+</div>
+<p>You can say:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+</pre></td>
+  <td class="code"><pre><span class="keyword">if</span> (record.get(<span class="string"><span class="delimiter">'</span><span class="content">isNew</span><span class="delimiter">'</span></span>) &amp;&amp; record.get(<span class="string"><span class="delimiter">'</span><span class="content">isSaving</span><span class="delimiter">'</span></span>)) {
+  doSomething();
+}
+</pre></td>
+</tr></table>
+</div>
+<p>If your state does not set a value for a given flag, the value will
+be inherited from its parent (or the first place in the state hierarchy
+where it is defined).</p>
+
+<p>The current set of flags are defined below. If you want to add a new flag,
+in addition to the area below, you will also need to declare it in the
+<code>DS.Model</code> class.</p>
+
+<h4>Transitions</h4>
+
+<p>Transitions are like event handlers but are called automatically upon
+entering or exiting a state. To implement a transition, just call a method
+either <code>enter</code> or <code>exit</code>:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+5
+6
+7
+</pre></td>
+  <td class="code"><pre>myState: DS.State.create({
+  <span class="comment">// Gets called automatically when entering</span>
+  <span class="comment">// this state.</span>
+  <span class="function">enter</span>: <span class="keyword">function</span>(manager) {
+    console.log(<span class="string"><span class="delimiter">&quot;</span><span class="content">Entered myState</span><span class="delimiter">&quot;</span></span>);
+  }
+})
+</pre></td>
+</tr></table>
+</div>
+<p>Note that enter and exit events are called once per transition. If the
+current state changes, but changes to another child state of the parent,
+the transition event on the parent will not be triggered.</p>
+
+  </div>
+
+
+
+
+      </div>
+    </div>
+
+    <div id="footer">
+      <div id="footer-wrapper">
+        <div class="info">
+          Copyright 2013 <a href="http://tilde.io">Tilde Inc.</a><br>
+          Design by <a href="http://www.heropixel.com">HeroPixel</a></br>
+          <a href="/team">Core Team</a> | <a href="/sponsors">Project Sponsors</a>
+        </div>
+        <div class="statement">Ember.js is free, open source and always will be.</div>
+        <div class="links">
+          <a class="twitter" href="http://twitter.com/emberjs">Twitter</a>
+          <a class="github" href="https://github.com/emberjs/ember.js">GitHub</a>
+          <a class="googleplus" href="https://plus.google.com/communities/106387049790387471205">Google+</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

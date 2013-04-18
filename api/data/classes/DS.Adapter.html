@@ -1,0 +1,2162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Ember.js - DS.Adapter</title>
+    <link rel="shortcut icon" href="/images/favicon.png" />
+    <link href="/stylesheets/site.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/highlight.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="http://emberjs.com/blog/feed.xml" rel="alternate" type="application/atom+xml" title="Ember.js - Blog" />
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl = '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-27675533-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/javascripts/jquery.bxSlider.min.js"></script>
+
+    <script type="text/javascript">
+      $(function() {
+        var backToTop = $('#back-to-top');
+        var doc = $(document);
+        var offset = backToTop.offset();
+        var marginTop = 90;
+        var showing = false;
+
+        positionBackToTop = function(reset) {
+          if (reset) {
+            backToTop.css({
+              top: '',
+              position: ''
+            });
+            offset = backToTop.offset();
+          }
+
+          if (!showing && doc.scrollTop() > offset.top+200) {
+            showing = true;
+            backToTop.css({
+              position: 'fixed',
+              top: 20,
+              left: offset.left,
+              display:' block'
+            });
+          } else if (showing && doc.scrollTop() <= offset.top+200) {
+            showing = false;
+            backToTop.css({
+              display:'none'
+            });
+          }
+        };
+
+        if (backToTop.length) {
+          backToTop.on('click', function(evt) {
+            $('html,body').animate({scrollTop: 0}, 200);
+            return false;
+          });
+
+          doc.on('scroll', function() {
+            positionBackToTop();
+          });
+        }
+
+        $('.bx-wrapper, .bx-window').width(940);
+      });
+    </script>
+
+    
+    <script>
+      $(function() {
+        var ls = window['localStorage'];
+
+        // Restoring method visibility preference from localStorage
+        function initApiOptions() {
+          var type = this.getAttribute('data-type'),
+            checked = ls ? ls.getItem('api-options-' + type) : undefined;
+
+          if (checked != undefined) {
+            // Bools are stored as strings in localStorage
+            checked = checked == 'true';
+            $(this).attr('checked', checked);
+          }
+        };
+
+        // Type toggling
+        function toggleType() {
+          var type = this.getAttribute('data-type');
+
+          $('.'+type).toggle(this.checked);
+
+          if(ls)
+            ls.setItem('api-options-' + type, this.checked);
+        }
+
+        $('#api-options input').each(initApiOptions);
+        $('#api-options input').each(toggleType);
+        $('#api-options input').on('change', toggleType);
+
+        // Tabs
+        $('.tabs .pane').hide();
+        $('.tabs .pane:first').show();
+        $('.tabs ul li:first').addClass('active');
+
+        function showPane($tabs, href) {
+          var $ul = $tabs.find('> ul'),
+              $tab = $ul.find('a[href='+href+']'),
+              $pane = $(href);
+
+          $ul.find('li').removeClass('active');
+          $tab.parent().addClass('active');
+          $tabs.find('.pane').hide();
+
+          $pane.show();
+        }
+
+        $('.tabs > ul li a').click(function(){
+          var $el = $(this),
+              $tabs = $el.parents('.tabs'),
+              href = $el.attr('href');
+
+          showPane($tabs, href);
+
+          return false;
+        });
+
+        // Auto tab
+        function checkHash() {
+          var hash = window.location.hash;
+          var $el = $(hash);
+          if ($el.length > 0 && !$el.is(':visible')) {
+            showPane($el.parents('.tabs'), '#'+$el.parents('.pane').attr('id'));
+            $("html, body").scrollTop($el.offset().top);
+          } else if ($el.length == 0) {
+            showPane($('.tabs'), '#index');
+          }
+        }
+
+        $(window).on('hashchange', checkHash);
+        checkHash();
+      });
+    $(function(){
+      $("#toc-list .level-1 > a").not('[target=_blank]').click(function() {
+        $(this).parent().find('> ol').slideToggle(function() {
+          positionBackToTop(true);
+        });
+
+        return false;
+      });
+
+      $(function(){
+        $('.anchorable-toc').each(function(){
+          var toc = $(this),
+          id = toc.data('id') || toc.attr('id'),
+          href = "#" + id,
+          anchor = '<a class="toc-anchor" href="'+href+'"></a>';
+
+          toc.prepend(anchor);
+        });
+      });
+
+    });
+    </script>
+  
+  </head>
+
+  <body class="api api_data api_data_classes api_data_classes_DS">
+    <div id="header">
+      <div id="wrapper">
+        <a id="logo" href="/">&nbsp;</a>
+        <ul id="nav">
+          <li><a href="/about">about</a></li>
+          <li><a href="/guides">guides</a></li>
+          <li><a href="/api/ember">api</a></li>
+          <li class="active"><a href="/api/data">ember data api</a></li>
+          <li><a href="/community">community</a></li>
+          <li><a href="/blog">blog</a></li>
+        </ul>
+        <div id="github">
+          <a href="https://github.com/emberjs/ember.js"><img src="/images/fork-us.png">Fork Us!</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="content-wrapper">
+      
+      
+        <div id="sidebar">
+          
+    <ol id='toc-list'>
+      <li class='level-1'><a href="https://github.com/emberjs/data/commit/30d9148" target="_blank"> Tag: 30d9148</a></li>
+
+      
+          <li class="level-1 ">
+          
+        <a href='#'>Modules</a>
+        
+          <ol class="">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data.html">data</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-adapter.html">data-adapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-adapters.html">data-adapters</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-model.html">data-model</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-record-array.html">data-record-array</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-relationships.html">data-relationships</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-serializer.html">data-serializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-serializers.html">data-serializers</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-store.html">data-store</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-transaction.html">data-transaction</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-transforms.html">data-transforms</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+
+      
+          <li class="level-1 ">
+          
+        <a href='#'>Namespaces</a>
+        
+          <ol class="">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.JSONTransforms.html">DS.JSONTransforms</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+
+      
+          <li class="level-1 selected">
+          
+        <a href='#'>Classes</a>
+        
+          <ol class="selected">
+          
+          
+            
+          <li class="level-3 sub-selected">
+          
+              <a href="/api/data/classes/DS.Adapter.html">DS.Adapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.BasicAdapter.html">DS.BasicAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FixtureSerializer.html">DS.FixtureSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.JSONSerializer.html">DS.JSONSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.ManyArray.html">DS.ManyArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Model.html">DS.Model</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RESTAdapter.html">DS.RESTAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RESTSerializer.html">DS.RESTSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RecordArray.html">DS.RecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Serializer.html">DS.Serializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.States.html">DS.States</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Store.html">DS.Store</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS._Mappable.html">DS._Mappable</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+  
+          <div id="back-to-top"><a id="back-top-top" href="#">&#11014; Back to Top</a></div>
+        </div>
+      
+      <div id="content" class="has-sidebar">
+          
+
+  
+  <h1>DS.Adapter Class</h1>
+
+
+<div class="class-info">
+  
+    <p>Extends: Ember.Object</p>
+  
+
+  
+
+  
+    <p>Defined in: <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L46">packages/ember-data/lib/system/adapter.js:46</a></p>
+  
+
+  
+    <p>Module: <a href="/api/data/modules/data-adapter.html">data-adapter</a></p>
+  
+</div>
+
+  <div class="description">
+    <p>An adapter is an object that receives requests from a store and
+translates them into the appropriate action to take against your
+persistence layer. The persistence layer is usually an HTTP API, but may
+be anything, such as the browser&#39;s local storage.</p>
+
+<h3>Creating an Adapter</h3>
+
+<p>First, create a new subclass of <code>DS.Adapter</code>:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+</pre></td>
+  <td class="code"><pre>App.MyAdapter = DS.Adapter.extend({
+  <span class="comment">// ...your code here</span>
+});
+</pre></td>
+</tr></table>
+</div>
+<p>To tell your store which adapter to use, set its <code>adapter</code> property:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+</pre></td>
+  <td class="code"><pre>App.store = DS.Store.create({
+  <span class="key">revision</span>: <span class="integer">3</span>,
+  <span class="key">adapter</span>: App.MyAdapter.create()
+});
+</pre></td>
+</tr></table>
+</div>
+<p><code>DS.Adapter</code> is an abstract base class that you should override in your
+application to customize it for your backend. The minimum set of methods
+that you should implement is:</p>
+
+<ul>
+<li><code>find()</code></li>
+<li><code>createRecord()</code></li>
+<li><code>updateRecord()</code></li>
+<li><code>deleteRecord()</code></li>
+</ul>
+
+<p>To improve the network performance of your application, you can optimize
+your adapter by overriding these lower-level methods:</p>
+
+<ul>
+<li><code>findMany()</code></li>
+<li><code>createRecords()</code></li>
+<li><code>updateRecords()</code></li>
+<li><code>deleteRecords()</code></li>
+<li><code>commit()</code></li>
+</ul>
+
+<p>For an example implementation, see {{#crossLink &quot;DS.RestAdapter&quot;}} the
+included REST adapter.{{/crossLink}}.</p>
+
+  </div>
+
+
+  <div class="tabs">
+    <ul>
+      <li><a href="#index">Index</a></li>
+      
+        <li><a href="#methods">Methods</a></li>
+      
+    </ul>
+    <div class="pane" id="index">
+      <div id='api-options'>
+  Show:
+  <label>
+    <input type='checkbox' data-type='inherited' checked>
+    Inherited
+  </label>
+  <label>
+    <input type='checkbox' data-type='protected'>
+    Protected
+  </label>
+  <label>
+    <input type='checkbox' data-type='private'>
+    Private
+  </label>
+  <label>
+    <input type='checkbox' data-type='deprecated'>
+    Deprecated
+  </label>
+</div>
+
+      
+        <p><h2>Methods</h2></p>
+        <ul class="index-list">
+          
+            <li class="method ">
+              <a href="#method_didCreateRecord">didCreateRecord</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_didCreateRecords">didCreateRecords</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_didDeleteRecord">didDeleteRecord</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_didDeleteRecords">didDeleteRecords</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_didError">didError</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_didFindAll">didFindAll</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_didFindMany">didFindMany</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_didFindQuery">didFindQuery</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_didFindRecord">didFindRecord</a>
+            </li>
+          
+            <li class="method private">
+              <a href="#method_didSaveRecord">didSaveRecord</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_didSaveRecords">didSaveRecords</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_didUpdateRecord">didUpdateRecord</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_didUpdateRecords">didUpdateRecords</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_find">find</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_generateIdForRecord">generateIdForRecord</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_load">load</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_registerEnumTransform">registerEnumTransform</a>
+            </li>
+          
+            <li class="method private">
+              <a href="#method_registerSerializerMappings">registerSerializerMappings</a>
+            </li>
+          
+            <li class="method private">
+              <a href="#method_registerSerializerTransforms">registerSerializerTransforms</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+  
+    <div class="pane" id="methods">
+      <div id='api-options'>
+  Show:
+  <label>
+    <input type='checkbox' data-type='inherited' checked>
+    Inherited
+  </label>
+  <label>
+    <input type='checkbox' data-type='protected'>
+    Protected
+  </label>
+  <label>
+    <input type='checkbox' data-type='private'>
+    Private
+  </label>
+  <label>
+    <input type='checkbox' data-type='deprecated'>
+    Deprecated
+  </label>
+</div>
+
+      
+        
+<div id="method_didCreateRecord" class="method  item-entry">
+  <h3 data-id="method_didCreateRecord" class="name anchorable-toc"><code>didCreateRecord</code></h3>
+  <span class="args">
+    (store, type, record, payload)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L151">packages/ember-data/lib/system/adapter.js:151</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Acknowledges that the adapter has finished creating a record.</p>
+
+<p>Your adapter should call this method from <code>createRecord</code> when
+it has saved a new record to its persistent storage and received
+an acknowledgement.</p>
+
+<p>If the persistent storage returns a new payload in response to the
+creation, and you want to update the existing record with the
+new information, pass the payload as the fourth parameter.</p>
+
+<p>For example, the <code>RESTAdapter</code> saves newly created records by
+making an Ajax request. When the server returns, the adapter
+calls didCreateRecord. If the server returns a response body,
+it is passed as the payload.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didCreateRecords" class="method  item-entry">
+  <h3 data-id="method_didCreateRecords" class="name anchorable-toc"><code>didCreateRecords</code></h3>
+  <span class="args">
+    (store, type, record, payload)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L188">packages/ember-data/lib/system/adapter.js:188</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Acknowledges that the adapter has finished creating several records.</p>
+
+<p>Your adapter should call this method from <code>createRecords</code> when it
+has saved multiple created records to its persistent storage
+received an acknowledgement.</p>
+
+<p>If the persistent storage returns a new payload in response to the
+creation, and you want to update the existing record with the
+new information, pass the payload as the fourth parameter.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didDeleteRecord" class="method  item-entry">
+  <h3 data-id="method_didDeleteRecord" class="name anchorable-toc"><code>didDeleteRecord</code></h3>
+  <span class="args">
+    (store, type, record, payload)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L272">packages/ember-data/lib/system/adapter.js:272</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Acknowledges that the adapter has finished deleting a record.</p>
+
+<p>Your adapter should call this method from <code>deleteRecord</code> when it
+has deleted a record from its persistent storage and received an
+acknowledgement.</p>
+
+<p>If the persistent storage returns a new payload in response to the
+deletion, pass the payload as the fourth parameter.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didDeleteRecords" class="method  item-entry">
+  <h3 data-id="method_didDeleteRecords" class="name anchorable-toc"><code>didDeleteRecords</code></h3>
+  <span class="args">
+    (store, type, records, payload)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L340">packages/ember-data/lib/system/adapter.js:340</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Acknowledges that the adapter has finished updating multiple records.</p>
+
+<p>Your adapter should call this method from its <code>deleteRecords</code> when
+it has deleted multiple records to its persistent storage and
+received an acknowledgement.</p>
+
+<p>If the persistent storage returns a new payload in response to the
+deletion, pass the payload as the fourth parameter.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>records</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didError" class="method  item-entry">
+  <h3 data-id="method_didError" class="name anchorable-toc"><code>didError</code></h3>
+  <span class="args">
+    (store, type, record)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L448">packages/ember-data/lib/system/adapter.js:448</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Notifies the store that a request to the backend returned
+an error.</p>
+
+<p>Your adapter should call this method to indicate that the
+backend returned an error for a request.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didFindAll" class="method  item-entry">
+  <h3 data-id="method_didFindAll" class="name anchorable-toc"><code>didFindAll</code></h3>
+  <span class="args">
+    (store, type, payload)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L389">packages/ember-data/lib/system/adapter.js:389</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Loads the response to a request for all records by type.</p>
+
+<p>You adapter should call this method from its <code>findAll</code>
+method with the response from the backend.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didFindMany" class="method  item-entry">
+  <h3 data-id="method_didFindMany" class="name anchorable-toc"><code>didFindMany</code></h3>
+  <span class="args">
+    (store, type, payload)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L431">packages/ember-data/lib/system/adapter.js:431</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Loads the response to a request for many records by ID.</p>
+
+<p>You adapter should call this method from its <code>findMany</code>
+method with the response from the backend.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didFindQuery" class="method  item-entry">
+  <h3 data-id="method_didFindQuery" class="name anchorable-toc"><code>didFindQuery</code></h3>
+  <span class="args">
+    (store, type, payload, recordArray)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L409">packages/ember-data/lib/system/adapter.js:409</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Loads the response to a request for records by query.</p>
+
+<p>Your adapter should call this method from its <code>findQuery</code>
+method with the response from the backend.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+          <dt><strong>recordArray</strong> <span class="type"><a href="/api/data/classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didFindRecord" class="method  item-entry">
+  <h3 data-id="method_didFindRecord" class="name anchorable-toc"><code>didFindRecord</code></h3>
+  <span class="args">
+    (store, type, payload, id)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L360">packages/ember-data/lib/system/adapter.js:360</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Loads the response to a request for a record by ID.</p>
+
+<p>Your adapter should call this method from its <code>find</code> method
+with the response from the backend.</p>
+
+<p>You should pass the same ID to this method that was given
+to your find method so that the store knows which record
+to associate the new data with.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+          <dt><strong>id</strong> <span class="type">String</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didSaveRecord" class="method private item-entry">
+  <h3 data-id="method_didSaveRecord" class="name anchorable-toc"><code>didSaveRecord</code></h3>
+  <span class="args">
+    (store, type, record, payload)
+  </span>
+
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L216">packages/ember-data/lib/system/adapter.js:216</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didSaveRecords" class="method  item-entry">
+  <h3 data-id="method_didSaveRecords" class="name anchorable-toc"><code>didSaveRecords</code></h3>
+  <span class="args">
+    (store, type, records, payload)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L292">packages/ember-data/lib/system/adapter.js:292</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Acknowledges that the adapter has finished updating or deleting
+multiple records.</p>
+
+<p>Your adapter should call this method from its <code>updateRecords</code> or
+<code>deleteRecords</code> when it has updated or deleted multiple records
+to its persistent storage and received an acknowledgement.</p>
+
+<p>If the persistent storage returns a new payload in response to the
+creation, pass the payload as the fourth parameter.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>records</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didUpdateRecord" class="method  item-entry">
+  <h3 data-id="method_didUpdateRecord" class="name anchorable-toc"><code>didUpdateRecord</code></h3>
+  <span class="args">
+    (store, type, record, payload)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L252">packages/ember-data/lib/system/adapter.js:252</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Acknowledges that the adapter has finished updating a record.</p>
+
+<p>Your adapter should call this method from <code>updateRecord</code> when it
+has updated a record to its persistent storage and received an
+acknowledgement.</p>
+
+<p>If the persistent storage returns a new payload in response to the
+update, pass the payload as the fourth parameter.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_didUpdateRecords" class="method  item-entry">
+  <h3 data-id="method_didUpdateRecords" class="name anchorable-toc"><code>didUpdateRecords</code></h3>
+  <span class="args">
+    (store, type, records, payload)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L320">packages/ember-data/lib/system/adapter.js:320</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Acknowledges that the adapter has finished updating multiple records.</p>
+
+<p>Your adapter should call this method from its <code>updateRecords</code> when
+it has updated multiple records to its persistent storage and
+received an acknowledgement.</p>
+
+<p>If the persistent storage returns a new payload in response to the
+update, pass the payload as the fourth parameter.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>records</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_find" class="method  item-entry">
+  <h3 data-id="method_find" class="name anchorable-toc"><code>find</code></h3>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L537">packages/ember-data/lib/system/adapter.js:537</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>The <code>find()</code> method is invoked when the store is asked for a record that
+has not previously been loaded. In response to <code>find()</code> being called, you
+should query your persistence layer for a record with the given ID. Once
+found, you can asynchronously call the store&#39;s <code>load()</code> method to load
+the record.</p>
+
+<p>Here is an example <code>find</code> implementation:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+<strong>10</strong>
+11
+</pre></td>
+  <td class="code"><pre><span class="function">find</span>: <span class="keyword">function</span>(store, type, id) {
+  <span class="keyword">var</span> url = type.url;
+  url = url.fmt(id);
+
+  jQuery.getJSON(url, <span class="keyword">function</span>(data) {
+      <span class="comment">// data is a hash of key/value pairs. If your server returns a</span>
+      <span class="comment">// root, simply do something like:</span>
+      <span class="comment">// store.load(type, id, data.person)</span>
+      store.load(type, id, data);
+  });
+}
+</pre></td>
+</tr></table>
+</div>
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+
+  
+</div>
+
+      
+        
+<div id="method_generateIdForRecord" class="method  item-entry">
+  <h3 data-id="method_generateIdForRecord" class="name anchorable-toc"><code>generateIdForRecord</code></h3>
+  <span class="args">
+    (store, record)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L600">packages/ember-data/lib/system/adapter.js:600</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>If the globally unique IDs for your records should be generated on the client,
+implement the <code>generateIdForRecord()</code> method. This method will be invoked
+each time you create a new record, and the value returned from it will be
+assigned to the record&#39;s <code>primaryKey</code>.</p>
+
+<p>Most traditional REST-like HTTP APIs will not use this method. Instead, the ID
+of the record will be set by the server, and your adapter will update the store
+with the new ID when it calls <code>didCreateRecord()</code>. Only implement this method if
+you intend to generate record IDs on the client-side.</p>
+
+<p>The <code>generateIdForRecord()</code> method will be invoked with the requesting store as
+the first parameter and the newly created record as the second parameter:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+</pre></td>
+  <td class="code"><pre><span class="function">generateIdForRecord</span>: <span class="keyword">function</span>(store, record) {
+  <span class="keyword">var</span> uuid = App.generateUUIDWithStatisticallyLowOddsOfCollision();
+  <span class="keyword">return</span> uuid;
+}
+</pre></td>
+</tr></table>
+</div>
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_load" class="method  item-entry">
+  <h3 data-id="method_load" class="name anchorable-toc"><code>load</code></h3>
+  <span class="args">
+    (store, type, payload)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L118">packages/ember-data/lib/system/adapter.js:118</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Loads a payload for a record into the store.</p>
+
+<p>This method asks the serializer to break the payload into
+constituent parts, and then loads them into the store. For example,
+if you have a payload that contains embedded records, they will be
+extracted by the serializer and loaded into the store.</p>
+
+<p>For example:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td>
+  <td class="code"><pre>adapter.load(store, App.Person, {
+  <span class="key">id</span>: <span class="integer">123</span>,
+  <span class="key">firstName</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Yehuda</span><span class="delimiter">&quot;</span></span>,
+  <span class="key">lastName</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Katz</span><span class="delimiter">&quot;</span></span>,
+  <span class="key">occupations</span>: [{
+    <span class="key">id</span>: <span class="integer">345</span>,
+    <span class="key">title</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Tricycle Mechanic</span><span class="delimiter">&quot;</span></span>
+  }]
+});
+</pre></td>
+</tr></table>
+</div>
+<p>This will load the payload for the <code>App.Person</code> with ID <code>123</code> and
+the embedded <code>App.Occupation</code> with ID <code>345</code>.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>store</strong> <span class="type"><a href="/api/data/classes/DS.Store.html">DS.Store</a></span></dt>
+          <dd></dd>
+        
+          <dt><strong>type</strong> <span class="type">subclass of DS.Model</span></dt>
+          <dd></dd>
+        
+          <dt><strong>payload</strong> <span class="type">Any</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_registerEnumTransform" class="method  item-entry">
+  <h3 data-id="method_registerEnumTransform" class="name anchorable-toc"><code>registerEnumTransform</code></h3>
+  <span class="args">
+    (type, array)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L568">packages/ember-data/lib/system/adapter.js:568</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A public method that allows you to register an enumerated
+type on your adapter.  This is useful if you want to utilize
+a text representation of an integer value.</p>
+
+<p>Eg: Say you want to utilize &quot;low&quot;,&quot;medium&quot;,&quot;high&quot; text strings
+in your app, but you want to persist those as 0,1,2 in your backend.
+You would first register the transform on your adapter instance:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+</pre></td>
+  <td class="code"><pre>adapter.registerEnumTransform(<span class="string"><span class="delimiter">'</span><span class="content">priority</span><span class="delimiter">'</span></span>, [<span class="string"><span class="delimiter">'</span><span class="content">low</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">medium</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">high</span><span class="delimiter">'</span></span>]);
+</pre></td>
+</tr></table>
+</div>
+<p>You would then refer to the &#39;priority&#39; DS.attr in your model:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+</pre></td>
+  <td class="code"><pre>App.Task = DS.Model.extend({
+  <span class="key">priority</span>: DS.attr(<span class="string"><span class="delimiter">'</span><span class="content">priority</span><span class="delimiter">'</span></span>)
+});
+</pre></td>
+</tr></table>
+</div>
+<p>And lastly, you would set/get the text representation on your model instance,
+but the transformed result will be the index number of the type.</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+</pre></td>
+  <td class="code"><pre>App:   myTask.get(<span class="string"><span class="delimiter">'</span><span class="content">priority</span><span class="delimiter">'</span></span>) =&gt; <span class="string"><span class="delimiter">'</span><span class="content">low</span><span class="delimiter">'</span></span>
+Server Response / Load:  { <span class="key">myTask</span>: {<span class="key">priority</span>: <span class="integer">0</span>} }
+</pre></td>
+</tr></table>
+</div>
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>type</strong> <span class="type">String</span></dt>
+          <dd>of the transform</dd>
+        
+          <dt><strong>array</strong> <span class="type">Array</span></dt>
+          <dd>of String objects to use for the enumerated values.
+  This is an ordered list and the index values will be used for the transform.</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_registerSerializerMappings" class="method private item-entry">
+  <h3 data-id="method_registerSerializerMappings" class="name anchorable-toc"><code>registerSerializerMappings</code></h3>
+  <span class="args">
+    (klass, serializer)
+  </span>
+
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L516">packages/ember-data/lib/system/adapter.js:516</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>klass</strong> <span class="type">Class</span></dt>
+          <dd>the DS.Adapter subclass to extract the
+  transforms from</dd>
+        
+          <dt><strong>serializer</strong> <span class="type"><a href="/api/data/classes/DS.Serializer.html">DS.Serializer</a></span></dt>
+          <dd>the serializer to register the
+  mappings onto</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_registerSerializerTransforms" class="method private item-entry">
+  <h3 data-id="method_registerSerializerTransforms" class="name anchorable-toc"><code>registerSerializerTransforms</code></h3>
+  <span class="args">
+    (klass, serializer, seen)
+  </span>
+
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/adapter.js#L484">packages/ember-data/lib/system/adapter.js:484</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>klass</strong> <span class="type">Class</span></dt>
+          <dd>the DS.Adapter subclass to extract the
+  transforms from</dd>
+        
+          <dt><strong>serializer</strong> <span class="type"><a href="/api/data/classes/DS.Serializer.html">DS.Serializer</a></span></dt>
+          <dd>the serializer to register
+  the transforms onto</dd>
+        
+          <dt><strong>seen</strong> <span class="type">Object</span></dt>
+          <dd>a hash of attributes already seen</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+    </div>
+  
+  </div>
+
+
+      </div>
+    </div>
+
+    <div id="footer">
+      <div id="footer-wrapper">
+        <div class="info">
+          Copyright 2013 <a href="http://tilde.io">Tilde Inc.</a><br>
+          Design by <a href="http://www.heropixel.com">HeroPixel</a></br>
+          <a href="/team">Core Team</a> | <a href="/sponsors">Project Sponsors</a>
+        </div>
+        <div class="statement">Ember.js is free, open source and always will be.</div>
+        <div class="links">
+          <a class="twitter" href="http://twitter.com/emberjs">Twitter</a>
+          <a class="github" href="https://github.com/emberjs/ember.js">GitHub</a>
+          <a class="googleplus" href="https://plus.google.com/communities/106387049790387471205">Google+</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

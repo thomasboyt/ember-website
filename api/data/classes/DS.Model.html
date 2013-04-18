@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Ember.js - DS.Model</title>
+    <link rel="shortcut icon" href="/images/favicon.png" />
+    <link href="/stylesheets/site.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/highlight.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="http://emberjs.com/blog/feed.xml" rel="alternate" type="application/atom+xml" title="Ember.js - Blog" />
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl = '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-27675533-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/javascripts/jquery.bxSlider.min.js"></script>
+
+    <script type="text/javascript">
+      $(function() {
+        var backToTop = $('#back-to-top');
+        var doc = $(document);
+        var offset = backToTop.offset();
+        var marginTop = 90;
+        var showing = false;
+
+        positionBackToTop = function(reset) {
+          if (reset) {
+            backToTop.css({
+              top: '',
+              position: ''
+            });
+            offset = backToTop.offset();
+          }
+
+          if (!showing && doc.scrollTop() > offset.top+200) {
+            showing = true;
+            backToTop.css({
+              position: 'fixed',
+              top: 20,
+              left: offset.left,
+              display:' block'
+            });
+          } else if (showing && doc.scrollTop() <= offset.top+200) {
+            showing = false;
+            backToTop.css({
+              display:'none'
+            });
+          }
+        };
+
+        if (backToTop.length) {
+          backToTop.on('click', function(evt) {
+            $('html,body').animate({scrollTop: 0}, 200);
+            return false;
+          });
+
+          doc.on('scroll', function() {
+            positionBackToTop();
+          });
+        }
+
+        $('.bx-wrapper, .bx-window').width(940);
+      });
+    </script>
+
+    
+    <script>
+      $(function() {
+        var ls = window['localStorage'];
+
+        // Restoring method visibility preference from localStorage
+        function initApiOptions() {
+          var type = this.getAttribute('data-type'),
+            checked = ls ? ls.getItem('api-options-' + type) : undefined;
+
+          if (checked != undefined) {
+            // Bools are stored as strings in localStorage
+            checked = checked == 'true';
+            $(this).attr('checked', checked);
+          }
+        };
+
+        // Type toggling
+        function toggleType() {
+          var type = this.getAttribute('data-type');
+
+          $('.'+type).toggle(this.checked);
+
+          if(ls)
+            ls.setItem('api-options-' + type, this.checked);
+        }
+
+        $('#api-options input').each(initApiOptions);
+        $('#api-options input').each(toggleType);
+        $('#api-options input').on('change', toggleType);
+
+        // Tabs
+        $('.tabs .pane').hide();
+        $('.tabs .pane:first').show();
+        $('.tabs ul li:first').addClass('active');
+
+        function showPane($tabs, href) {
+          var $ul = $tabs.find('> ul'),
+              $tab = $ul.find('a[href='+href+']'),
+              $pane = $(href);
+
+          $ul.find('li').removeClass('active');
+          $tab.parent().addClass('active');
+          $tabs.find('.pane').hide();
+
+          $pane.show();
+        }
+
+        $('.tabs > ul li a').click(function(){
+          var $el = $(this),
+              $tabs = $el.parents('.tabs'),
+              href = $el.attr('href');
+
+          showPane($tabs, href);
+
+          return false;
+        });
+
+        // Auto tab
+        function checkHash() {
+          var hash = window.location.hash;
+          var $el = $(hash);
+          if ($el.length > 0 && !$el.is(':visible')) {
+            showPane($el.parents('.tabs'), '#'+$el.parents('.pane').attr('id'));
+            $("html, body").scrollTop($el.offset().top);
+          } else if ($el.length == 0) {
+            showPane($('.tabs'), '#index');
+          }
+        }
+
+        $(window).on('hashchange', checkHash);
+        checkHash();
+      });
+    $(function(){
+      $("#toc-list .level-1 > a").not('[target=_blank]').click(function() {
+        $(this).parent().find('> ol').slideToggle(function() {
+          positionBackToTop(true);
+        });
+
+        return false;
+      });
+
+      $(function(){
+        $('.anchorable-toc').each(function(){
+          var toc = $(this),
+          id = toc.data('id') || toc.attr('id'),
+          href = "#" + id,
+          anchor = '<a class="toc-anchor" href="'+href+'"></a>';
+
+          toc.prepend(anchor);
+        });
+      });
+
+    });
+    </script>
+  
+  </head>
+
+  <body class="api api_data api_data_classes api_data_classes_DS">
+    <div id="header">
+      <div id="wrapper">
+        <a id="logo" href="/">&nbsp;</a>
+        <ul id="nav">
+          <li><a href="/about">about</a></li>
+          <li><a href="/guides">guides</a></li>
+          <li><a href="/api/ember">api</a></li>
+          <li class="active"><a href="/api/data">ember data api</a></li>
+          <li><a href="/community">community</a></li>
+          <li><a href="/blog">blog</a></li>
+        </ul>
+        <div id="github">
+          <a href="https://github.com/emberjs/ember.js"><img src="/images/fork-us.png">Fork Us!</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="content-wrapper">
+      
+      
+        <div id="sidebar">
+          
+    <ol id='toc-list'>
+      <li class='level-1'><a href="https://github.com/emberjs/data/commit/30d9148" target="_blank"> Tag: 30d9148</a></li>
+
+      
+          <li class="level-1 ">
+          
+        <a href='#'>Modules</a>
+        
+          <ol class="">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data.html">data</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-adapter.html">data-adapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-adapters.html">data-adapters</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-model.html">data-model</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-record-array.html">data-record-array</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-relationships.html">data-relationships</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-serializer.html">data-serializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-serializers.html">data-serializers</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-store.html">data-store</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-transaction.html">data-transaction</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-transforms.html">data-transforms</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+
+      
+          <li class="level-1 ">
+          
+        <a href='#'>Namespaces</a>
+        
+          <ol class="">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.JSONTransforms.html">DS.JSONTransforms</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+
+      
+          <li class="level-1 selected">
+          
+        <a href='#'>Classes</a>
+        
+          <ol class="selected">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Adapter.html">DS.Adapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.BasicAdapter.html">DS.BasicAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FixtureSerializer.html">DS.FixtureSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.JSONSerializer.html">DS.JSONSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.ManyArray.html">DS.ManyArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 sub-selected">
+          
+              <a href="/api/data/classes/DS.Model.html">DS.Model</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RESTAdapter.html">DS.RESTAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RESTSerializer.html">DS.RESTSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RecordArray.html">DS.RecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Serializer.html">DS.Serializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.States.html">DS.States</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Store.html">DS.Store</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS._Mappable.html">DS._Mappable</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+  
+          <div id="back-to-top"><a id="back-top-top" href="#">&#11014; Back to Top</a></div>
+        </div>
+      
+      <div id="content" class="has-sidebar">
+          
+
+  
+  <h1>DS.Model Class</h1>
+
+
+<div class="class-info">
+  
+
+  
+
+  
+    <p>Defined in: <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L12">packages/ember-data/lib/system/model/model.js:12</a></p>
+  
+
+  
+    <p>Module: <a href="/api/data/modules/data-model.html">data-model</a></p>
+  
+</div>
+
+  <div class="description">
+    <p>The model class that all Ember Data records descend from.</p>
+
+  </div>
+
+
+  <div class="tabs">
+    <ul>
+      <li><a href="#index">Index</a></li>
+      
+        <li><a href="#methods">Methods</a></li>
+      
+        <li><a href="#events">Events</a></li>
+      
+    </ul>
+    <div class="pane" id="index">
+      <div id='api-options'>
+  Show:
+  <label>
+    <input type='checkbox' data-type='inherited' checked>
+    Inherited
+  </label>
+  <label>
+    <input type='checkbox' data-type='protected'>
+    Protected
+  </label>
+  <label>
+    <input type='checkbox' data-type='private'>
+    Private
+  </label>
+  <label>
+    <input type='checkbox' data-type='deprecated'>
+    Deprecated
+  </label>
+</div>
+
+      
+        <p><h2>Methods</h2></p>
+        <ul class="index-list">
+          
+            <li class="method ">
+              <a href="#method_all">all</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_createRecord">createRecord</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_filter">filter</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_find">find</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_query">query</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_reload">reload</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_serialize">serialize</a>
+            </li>
+          
+            <li class="method ">
+              <a href="#method_toJSON">toJSON</a>
+            </li>
+          
+        </ul>
+      
+        <p><h2>Events</h2></p>
+        <ul class="index-list">
+          
+            <li class="event ">
+              <a href="#event_becameError">becameError</a>
+            </li>
+          
+            <li class="event ">
+              <a href="#event_becameInvalid">becameInvalid</a>
+            </li>
+          
+            <li class="event ">
+              <a href="#event_didCreate">didCreate</a>
+            </li>
+          
+            <li class="event ">
+              <a href="#event_didDelete">didDelete</a>
+            </li>
+          
+            <li class="event ">
+              <a href="#event_didLoad">didLoad</a>
+            </li>
+          
+            <li class="event ">
+              <a href="#event_didReload">didReload</a>
+            </li>
+          
+            <li class="event ">
+              <a href="#event_didUpdate">didUpdate</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+  
+    <div class="pane" id="methods">
+      <div id='api-options'>
+  Show:
+  <label>
+    <input type='checkbox' data-type='inherited' checked>
+    Inherited
+  </label>
+  <label>
+    <input type='checkbox' data-type='protected'>
+    Protected
+  </label>
+  <label>
+    <input type='checkbox' data-type='private'>
+    Private
+  </label>
+  <label>
+    <input type='checkbox' data-type='deprecated'>
+    Deprecated
+  </label>
+</div>
+
+      
+        
+<div id="method_all" class="method  item-entry">
+  <h3 data-id="method_all" class="name anchorable-toc"><code>all</code></h3>
+
+  <span class="type"><a href="/api/data/classes/DS.RecordArray.html">DS.RecordArray</a></span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L467">packages/ember-data/lib/system/model/model.js:467</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>See {{#crossLink &quot;DS.Store/all:method&quot;}}<code>DS.Store.all()</code>{{/crossLink}}.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type"><a href="/api/data/classes/DS.RecordArray.html">DS.RecordArray</a></span>
+        <dd> </dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_createRecord" class="method  item-entry">
+  <h3 data-id="method_createRecord" class="name anchorable-toc"><code>createRecord</code></h3>
+  <span class="args">
+    (properties)
+  </span>
+
+  <span class="type"></span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L499">packages/ember-data/lib/system/model/model.js:499</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>See {{#crossLink &quot;DS.Store/createRecord:method&quot;}}<code>DS.Store.createRecord()</code>{{/crossLink}}.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>properties</strong> <span class="type">Object</span></dt>
+          <dd>a hash of properties to set on the
+  newly created record.</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type"></span>
+        <dd> DS.Model</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_filter" class="method  item-entry">
+  <h3 data-id="method_filter" class="name anchorable-toc"><code>filter</code></h3>
+  <span class="args">
+    (filter)
+  </span>
+
+  <span class="type"><a href="/api/data/classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L484">packages/ember-data/lib/system/model/model.js:484</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>See {{#crossLink &quot;DS.Store/filter:method&quot;}}<code>DS.Store.filter()</code>{{/crossLink}}.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>filter</strong> <span class="type">Function</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type"><a href="/api/data/classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></span>
+        <dd> </dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_find" class="method  item-entry">
+  <h3 data-id="method_find" class="name anchorable-toc"><code>find</code></h3>
+  <span class="args">
+    (query)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L458">packages/ember-data/lib/system/model/model.js:458</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>See {{#crossLink &quot;DS.Store/find:method&quot;}}<code>DS.Store.find()</code>{{/crossLink}}.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>query</strong> <span class="type">Object|String|Array|null</span></dt>
+          <dd>A query to find records by.</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_query" class="method  item-entry">
+  <h3 data-id="method_query" class="name anchorable-toc"><code>query</code></h3>
+  <span class="args">
+    (query)
+  </span>
+
+  <span class="type"><a href="/api/data/classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L475">packages/ember-data/lib/system/model/model.js:475</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>See {{#crossLink &quot;DS.Store/findQuery:method&quot;}}<code>DS.Store.findQuery()</code>{{/crossLink}}.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>query</strong> <span class="type">Object</span></dt>
+          <dd>an opaque query to be used by the adapter</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type"><a href="/api/data/classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></span>
+        <dd> </dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_reload" class="method  item-entry">
+  <h3 data-id="method_reload" class="name anchorable-toc"><code>reload</code></h3>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L182">packages/ember-data/lib/system/model/model.js:182</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Reload the record from the adapter.</p>
+
+<p>This will only work if the record has already finished loading
+and has not yet been modified (<code>isLoaded</code> but not <code>isDirty</code>,
+or <code>isSaving</code>).</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+
+  
+</div>
+
+      
+        
+<div id="method_serialize" class="method  item-entry">
+  <h3 data-id="method_serialize" class="name anchorable-toc"><code>serialize</code></h3>
+  <span class="args">
+    (options)
+  </span>
+
+  <span class="type">Object</span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L42">packages/ember-data/lib/system/model/model.js:42</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Create a JSON representation of the record, using the serialization
+strategy of the store&#39;s adapter.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>options</strong> <span class="type">Object</span></dt>
+          <dd>Available options:
+
+* `includeId`: `true` if the record's ID should be included in the
+  JSON representation.</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">Object</span>
+        <dd> an object whose values are primitive JSON values only</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_toJSON" class="method  item-entry">
+  <h3 data-id="method_toJSON" class="name anchorable-toc"><code>toJSON</code></h3>
+  <span class="args">
+    (options)
+  </span>
+
+  <span class="type">Object</span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L59">packages/ember-data/lib/system/model/model.js:59</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Use {{#crossLink &quot;DS.JSONSerializer&quot;}}DS.JSONSerializer{{/crossLink}} to
+get the JSON representation of a record.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>options</strong> <span class="type">Object</span></dt>
+          <dd>Available options:
+
+* `includeId`: `true` if the record's ID should be included in the
+  JSON representation.</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">Object</span>
+        <dd> A JSON representation of the object.</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+    </div>
+  
+    <div class="pane" id="events">
+      <div id='api-options'>
+  Show:
+  <label>
+    <input type='checkbox' data-type='inherited' checked>
+    Inherited
+  </label>
+  <label>
+    <input type='checkbox' data-type='protected'>
+    Protected
+  </label>
+  <label>
+    <input type='checkbox' data-type='private'>
+    Private
+  </label>
+  <label>
+    <input type='checkbox' data-type='deprecated'>
+    Deprecated
+  </label>
+</div>
+
+      
+        
+<div id="event_becameError" class="event  item-entry">
+  <h3 data-id="event_becameError" class="name anchorable-toc"><code>becameError</code></h3>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L118">packages/ember-data/lib/system/model/model.js:118</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Fired when the record enters the error state.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+
+  
+</div>
+
+      
+        
+<div id="event_becameInvalid" class="event  item-entry">
+  <h3 data-id="event_becameInvalid" class="name anchorable-toc"><code>becameInvalid</code></h3>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L111">packages/ember-data/lib/system/model/model.js:111</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Fired when the record becomes invalid.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+
+  
+</div>
+
+      
+        
+<div id="event_didCreate" class="event  item-entry">
+  <h3 data-id="event_didCreate" class="name anchorable-toc"><code>didCreate</code></h3>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L97">packages/ember-data/lib/system/model/model.js:97</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Fired when the record is created.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+
+  
+</div>
+
+      
+        
+<div id="event_didDelete" class="event  item-entry">
+  <h3 data-id="event_didDelete" class="name anchorable-toc"><code>didDelete</code></h3>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L104">packages/ember-data/lib/system/model/model.js:104</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Fired when the record is deleted.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+
+  
+</div>
+
+      
+        
+<div id="event_didLoad" class="event  item-entry">
+  <h3 data-id="event_didLoad" class="name anchorable-toc"><code>didLoad</code></h3>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L76">packages/ember-data/lib/system/model/model.js:76</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Fired when the record is loaded from the server.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+
+  
+</div>
+
+      
+        
+<div id="event_didReload" class="event  item-entry">
+  <h3 data-id="event_didReload" class="name anchorable-toc"><code>didReload</code></h3>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L83">packages/ember-data/lib/system/model/model.js:83</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Fired when the record is reloaded from the server.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+
+  
+</div>
+
+      
+        
+<div id="event_didUpdate" class="event  item-entry">
+  <h3 data-id="event_didUpdate" class="name anchorable-toc"><code>didUpdate</code></h3>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          
+            Defined in
+          
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/model.js#L90">packages/ember-data/lib/system/model/model.js:90</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Fired when the record is updated.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+
+  
+</div>
+
+      
+    </div>
+  
+  </div>
+
+
+      </div>
+    </div>
+
+    <div id="footer">
+      <div id="footer-wrapper">
+        <div class="info">
+          Copyright 2013 <a href="http://tilde.io">Tilde Inc.</a><br>
+          Design by <a href="http://www.heropixel.com">HeroPixel</a></br>
+          <a href="/team">Core Team</a> | <a href="/sponsors">Project Sponsors</a>
+        </div>
+        <div class="statement">Ember.js is free, open source and always will be.</div>
+        <div class="links">
+          <a class="twitter" href="http://twitter.com/emberjs">Twitter</a>
+          <a class="github" href="https://github.com/emberjs/ember.js">GitHub</a>
+          <a class="googleplus" href="https://plus.google.com/communities/106387049790387471205">Google+</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

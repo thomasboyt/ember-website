@@ -1,0 +1,2493 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Ember.js - DS.JSONSerializer</title>
+    <link rel="shortcut icon" href="/images/favicon.png" />
+    <link href="/stylesheets/site.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/highlight.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="http://emberjs.com/blog/feed.xml" rel="alternate" type="application/atom+xml" title="Ember.js - Blog" />
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl = '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-27675533-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/javascripts/jquery.bxSlider.min.js"></script>
+
+    <script type="text/javascript">
+      $(function() {
+        var backToTop = $('#back-to-top');
+        var doc = $(document);
+        var offset = backToTop.offset();
+        var marginTop = 90;
+        var showing = false;
+
+        positionBackToTop = function(reset) {
+          if (reset) {
+            backToTop.css({
+              top: '',
+              position: ''
+            });
+            offset = backToTop.offset();
+          }
+
+          if (!showing && doc.scrollTop() > offset.top+200) {
+            showing = true;
+            backToTop.css({
+              position: 'fixed',
+              top: 20,
+              left: offset.left,
+              display:' block'
+            });
+          } else if (showing && doc.scrollTop() <= offset.top+200) {
+            showing = false;
+            backToTop.css({
+              display:'none'
+            });
+          }
+        };
+
+        if (backToTop.length) {
+          backToTop.on('click', function(evt) {
+            $('html,body').animate({scrollTop: 0}, 200);
+            return false;
+          });
+
+          doc.on('scroll', function() {
+            positionBackToTop();
+          });
+        }
+
+        $('.bx-wrapper, .bx-window').width(940);
+      });
+    </script>
+
+    
+    <script>
+      $(function() {
+        var ls = window['localStorage'];
+
+        // Restoring method visibility preference from localStorage
+        function initApiOptions() {
+          var type = this.getAttribute('data-type'),
+            checked = ls ? ls.getItem('api-options-' + type) : undefined;
+
+          if (checked != undefined) {
+            // Bools are stored as strings in localStorage
+            checked = checked == 'true';
+            $(this).attr('checked', checked);
+          }
+        };
+
+        // Type toggling
+        function toggleType() {
+          var type = this.getAttribute('data-type');
+
+          $('.'+type).toggle(this.checked);
+
+          if(ls)
+            ls.setItem('api-options-' + type, this.checked);
+        }
+
+        $('#api-options input').each(initApiOptions);
+        $('#api-options input').each(toggleType);
+        $('#api-options input').on('change', toggleType);
+
+        // Tabs
+        $('.tabs .pane').hide();
+        $('.tabs .pane:first').show();
+        $('.tabs ul li:first').addClass('active');
+
+        function showPane($tabs, href) {
+          var $ul = $tabs.find('> ul'),
+              $tab = $ul.find('a[href='+href+']'),
+              $pane = $(href);
+
+          $ul.find('li').removeClass('active');
+          $tab.parent().addClass('active');
+          $tabs.find('.pane').hide();
+
+          $pane.show();
+        }
+
+        $('.tabs > ul li a').click(function(){
+          var $el = $(this),
+              $tabs = $el.parents('.tabs'),
+              href = $el.attr('href');
+
+          showPane($tabs, href);
+
+          return false;
+        });
+
+        // Auto tab
+        function checkHash() {
+          var hash = window.location.hash;
+          var $el = $(hash);
+          if ($el.length > 0 && !$el.is(':visible')) {
+            showPane($el.parents('.tabs'), '#'+$el.parents('.pane').attr('id'));
+            $("html, body").scrollTop($el.offset().top);
+          } else if ($el.length == 0) {
+            showPane($('.tabs'), '#index');
+          }
+        }
+
+        $(window).on('hashchange', checkHash);
+        checkHash();
+      });
+    $(function(){
+      $("#toc-list .level-1 > a").not('[target=_blank]').click(function() {
+        $(this).parent().find('> ol').slideToggle(function() {
+          positionBackToTop(true);
+        });
+
+        return false;
+      });
+
+      $(function(){
+        $('.anchorable-toc').each(function(){
+          var toc = $(this),
+          id = toc.data('id') || toc.attr('id'),
+          href = "#" + id,
+          anchor = '<a class="toc-anchor" href="'+href+'"></a>';
+
+          toc.prepend(anchor);
+        });
+      });
+
+    });
+    </script>
+  
+  </head>
+
+  <body class="api api_data api_data_classes api_data_classes_DS">
+    <div id="header">
+      <div id="wrapper">
+        <a id="logo" href="/">&nbsp;</a>
+        <ul id="nav">
+          <li><a href="/about">about</a></li>
+          <li><a href="/guides">guides</a></li>
+          <li><a href="/api/ember">api</a></li>
+          <li class="active"><a href="/api/data">ember data api</a></li>
+          <li><a href="/community">community</a></li>
+          <li><a href="/blog">blog</a></li>
+        </ul>
+        <div id="github">
+          <a href="https://github.com/emberjs/ember.js"><img src="/images/fork-us.png">Fork Us!</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="content-wrapper">
+      
+      
+        <div id="sidebar">
+          
+    <ol id='toc-list'>
+      <li class='level-1'><a href="https://github.com/emberjs/data/commit/30d9148" target="_blank"> Tag: 30d9148</a></li>
+
+      
+          <li class="level-1 ">
+          
+        <a href='#'>Modules</a>
+        
+          <ol class="">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data.html">data</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-adapter.html">data-adapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-adapters.html">data-adapters</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-model.html">data-model</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-record-array.html">data-record-array</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-relationships.html">data-relationships</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-serializer.html">data-serializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-serializers.html">data-serializers</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-store.html">data-store</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-transaction.html">data-transaction</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/modules/data-transforms.html">data-transforms</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+
+      
+          <li class="level-1 ">
+          
+        <a href='#'>Namespaces</a>
+        
+          <ol class="">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.JSONTransforms.html">DS.JSONTransforms</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+
+      
+          <li class="level-1 selected">
+          
+        <a href='#'>Classes</a>
+        
+          <ol class="selected">
+          
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Adapter.html">DS.Adapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.BasicAdapter.html">DS.BasicAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.FixtureSerializer.html">DS.FixtureSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 sub-selected">
+          
+              <a href="/api/data/classes/DS.JSONSerializer.html">DS.JSONSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.ManyArray.html">DS.ManyArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Model.html">DS.Model</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RESTAdapter.html">DS.RESTAdapter</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RESTSerializer.html">DS.RESTSerializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.RecordArray.html">DS.RecordArray</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Serializer.html">DS.Serializer</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.States.html">DS.States</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.Store.html">DS.Store</a>
+            
+          </li>
+        
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS._Mappable.html">DS._Mappable</a>
+            
+          </li>
+        
+          
+        
+          </ol>
+        
+      
+          </li>
+        
+  
+          <div id="back-to-top"><a id="back-top-top" href="#">&#11014; Back to Top</a></div>
+        </div>
+      
+      <div id="content" class="has-sidebar">
+          
+
+  
+  <h1>DS.JSONSerializer Class</h1>
+
+
+<div class="class-info">
+  
+    <p>Extends: <a href="/api/data/classes/DS.Serializer.html">DS.Serializer</a></p>
+  
+
+  
+
+  
+    <p>Defined in: <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/serializers/json_serializer.js#L9">packages/ember-data/lib/serializers/json_serializer.js:9</a></p>
+  
+
+  
+    <p>Module: <a href="/api/data/modules/data-serializers.html">data-serializers</a></p>
+  
+</div>
+
+
+
+  <div class="tabs">
+    <ul>
+      <li><a href="#index">Index</a></li>
+      
+        <li><a href="#methods">Methods</a></li>
+      
+    </ul>
+    <div class="pane" id="index">
+      <div id='api-options'>
+  Show:
+  <label>
+    <input type='checkbox' data-type='inherited' checked>
+    Inherited
+  </label>
+  <label>
+    <input type='checkbox' data-type='protected'>
+    Protected
+  </label>
+  <label>
+    <input type='checkbox' data-type='private'>
+    Private
+  </label>
+  <label>
+    <input type='checkbox' data-type='deprecated'>
+    Deprecated
+  </label>
+</div>
+
+      
+        <p><h2>Methods</h2></p>
+        <ul class="index-list">
+          
+            <li class="method private inherited">
+              <a href="#method__addAttribute">_addAttribute</a>
+            </li>
+          
+            <li class="method private inherited">
+              <a href="#method__addBelongsTo">_addBelongsTo</a>
+            </li>
+          
+            <li class="method private inherited">
+              <a href="#method__addHasMany">_addHasMany</a>
+            </li>
+          
+            <li class="method private inherited">
+              <a href="#method__addId">_addId</a>
+            </li>
+          
+            <li class="method private inherited">
+              <a href="#method__keyForAttributeName">_keyForAttributeName</a>
+            </li>
+          
+            <li class="method private inherited">
+              <a href="#method__keyForBelongsTo">_keyForBelongsTo</a>
+            </li>
+          
+            <li class="method private inherited">
+              <a href="#method__keyForHasMany">_keyForHasMany</a>
+            </li>
+          
+            <li class="method private inherited">
+              <a href="#method__keyFromMappingOrHook">_keyFromMappingOrHook</a>
+            </li>
+          
+            <li class="method private inherited">
+              <a href="#method__primaryKey">_primaryKey</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_addAttribute">addAttribute</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_addAttributes">addAttributes</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_addBelongsTo">addBelongsTo</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_addHasMany">addHasMany</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_addId">addId</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_addRelationships">addRelationships</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_addType">addType</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_createSerializedForm">createSerializedForm</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_extractEmbeddedType">extractEmbeddedType</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_keyForAttributeName">keyForAttributeName</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_keyForBelongsTo">keyForBelongsTo</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_keyForHasMany">keyForHasMany</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_primaryKey">primaryKey</a>
+            </li>
+          
+            <li class="method inherited">
+              <a href="#method_serialize">serialize</a>
+            </li>
+          
+            <li class="method private inherited">
+              <a href="#method_serializeValue">serializeValue</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+  
+    <div class="pane" id="methods">
+      <div id='api-options'>
+  Show:
+  <label>
+    <input type='checkbox' data-type='inherited' checked>
+    Inherited
+  </label>
+  <label>
+    <input type='checkbox' data-type='protected'>
+    Protected
+  </label>
+  <label>
+    <input type='checkbox' data-type='private'>
+    Private
+  </label>
+  <label>
+    <input type='checkbox' data-type='deprecated'>
+    Deprecated
+  </label>
+</div>
+
+      
+        
+<div id="method__addAttribute" class="method private inherited item-entry">
+  <h3 data-id="method__addAttribute" class="name anchorable-toc"><code>_addAttribute</code></h3>
+  <span class="args">
+    (data, record, attributeName, attributeType)
+  </span>
+
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method__addAttribute">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L877">packages/ember-data/lib/system/serializer.js:877</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>data</strong> <span class="type">Any</span></dt>
+          <dd>the serialized representation being built</dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd>the record to serialize</dd>
+        
+          <dt><strong>attributeName</strong> <span class="type">String</span></dt>
+          <dd>the name of the attribute on the record</dd>
+        
+          <dt><strong>attributeType</strong> <span class="type">String</span></dt>
+          <dd>the type of the attribute (e.g. `string`
+  or `boolean`)</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method__addBelongsTo" class="method private inherited item-entry">
+  <h3 data-id="method__addBelongsTo" class="name anchorable-toc"><code>_addBelongsTo</code></h3>
+  <span class="args">
+    (data, record, name, relationship)
+  </span>
+
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method__addBelongsTo">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L992">packages/ember-data/lib/system/serializer.js:992</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>data</strong> <span class="type">Any</span></dt>
+          <dd>the serialized representation that is being built</dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd>the record to serialize</dd>
+        
+          <dt><strong>name</strong> <span class="type">String</span></dt>
+          <dd>the relationship name</dd>
+        
+          <dt><strong>relationship</strong> <span class="type">Object</span></dt>
+          <dd>an object representing the relationship</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method__addHasMany" class="method private inherited item-entry">
+  <h3 data-id="method__addHasMany" class="name anchorable-toc"><code>_addHasMany</code></h3>
+  <span class="args">
+    (data, record, name, relationship)
+  </span>
+
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method__addHasMany">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L1009">packages/ember-data/lib/system/serializer.js:1009</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>data</strong> <span class="type">Any</span></dt>
+          <dd>the serialized representation that is being built</dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd>the record to serialize</dd>
+        
+          <dt><strong>name</strong> <span class="type">String</span></dt>
+          <dd>the relationship name</dd>
+        
+          <dt><strong>relationship</strong> <span class="type">Object</span></dt>
+          <dd>an object representing the relationship</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method__addId" class="method private inherited item-entry">
+  <h3 data-id="method__addId" class="name anchorable-toc"><code>_addId</code></h3>
+  <span class="args">
+    (data, type, id)
+  </span>
+
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method__addId">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L907">packages/ember-data/lib/system/serializer.js:907</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>data</strong> <span class="type">Any</span></dt>
+          <dd>the serialized representation that is being built</dd>
+        
+          <dt><strong>type</strong> <span class="type">Ember.Model subclass</span></dt>
+          <dd></dd>
+        
+          <dt><strong>id</strong> <span class="type">Any</span></dt>
+          <dd>the materialized id from the record</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method__keyForAttributeName" class="method private inherited item-entry">
+  <h3 data-id="method__keyForAttributeName" class="name anchorable-toc"><code>_keyForAttributeName</code></h3>
+  <span class="args">
+    (type, name)
+  </span>
+
+  <span class="type">String</span>
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method__keyForAttributeName">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L927">packages/ember-data/lib/system/serializer.js:927</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>type</strong> <span class="type">DS.Model subclass</span></dt>
+          <dd>the type of the record with
+  the attribute name `name`</dd>
+        
+          <dt><strong>name</strong> <span class="type">String</span></dt>
+          <dd>the attribute name to convert into a key</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">String</span>
+        <dd> the key</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method__keyForBelongsTo" class="method private inherited item-entry">
+  <h3 data-id="method__keyForBelongsTo" class="name anchorable-toc"><code>_keyForBelongsTo</code></h3>
+  <span class="args">
+    (type, name)
+  </span>
+
+  <span class="type">String</span>
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method__keyForBelongsTo">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L945">packages/ember-data/lib/system/serializer.js:945</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>type</strong> <span class="type">DS.Model subclass</span></dt>
+          <dd>the type of the record with
+  the `belongsTo` relationship.</dd>
+        
+          <dt><strong>name</strong> <span class="type">String</span></dt>
+          <dd>the relationship name to convert into a key</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">String</span>
+        <dd> the key</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method__keyForHasMany" class="method private inherited item-entry">
+  <h3 data-id="method__keyForHasMany" class="name anchorable-toc"><code>_keyForHasMany</code></h3>
+  <span class="args">
+    (type, name)
+  </span>
+
+  <span class="type">String</span>
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method__keyForHasMany">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L975">packages/ember-data/lib/system/serializer.js:975</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>type</strong> <span class="type">DS.Model subclass</span></dt>
+          <dd>the type of the record with
+  the `hasMany` relationship.</dd>
+        
+          <dt><strong>name</strong> <span class="type">String</span></dt>
+          <dd>the relationship name to convert into a key</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">String</span>
+        <dd> the key</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method__keyFromMappingOrHook" class="method private inherited item-entry">
+  <h3 data-id="method__keyFromMappingOrHook" class="name anchorable-toc"><code>_keyFromMappingOrHook</code></h3>
+  <span class="args">
+    (publicMethod, type, name)
+  </span>
+
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method__keyFromMappingOrHook">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L1026">packages/ember-data/lib/system/serializer.js:1026</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>publicMethod</strong> <span class="type">String</span></dt>
+          <dd>the public hook to invoke if
+  a mapping is not found (e.g. `keyForAttributeName`)</dd>
+        
+          <dt><strong>type</strong> <span class="type">DS.Model subclass</span></dt>
+          <dd>the type of the record with
+  the attribute or relationship name.</dd>
+        
+          <dt><strong>name</strong> <span class="type">String</span></dt>
+          <dd>the attribute or relationship name to
+  convert into a key</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method__primaryKey" class="method private inherited item-entry">
+  <h3 data-id="method__primaryKey" class="name anchorable-toc"><code>_primaryKey</code></h3>
+  <span class="args">
+    (type)
+  </span>
+
+  <span class="type">String</span>
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method__primaryKey">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L852">packages/ember-data/lib/system/serializer.js:852</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>type</strong> <span class="type">DS.Model subclass</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">String</span>
+        <dd> the primary key for the type</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_addAttribute" class="method inherited item-entry">
+  <h3 data-id="method_addAttribute" class="name anchorable-toc"><code>addAttribute</code></h3>
+  <span class="args">
+    (serialized, key, value)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_addAttribute">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L412">packages/ember-data/lib/system/serializer.js:412</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use to customize how the key/value pair is added to
+the serialized data.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>serialized</strong> <span class="type">Any</span></dt>
+          <dd>the serialized form being built</dd>
+        
+          <dt><strong>key</strong> <span class="type">String</span></dt>
+          <dd>the key to add to the serialized data</dd>
+        
+          <dt><strong>value</strong> <span class="type">Any</span></dt>
+          <dd>the value to add to the serialized data</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_addAttributes" class="method inherited item-entry">
+  <h3 data-id="method_addAttributes" class="name anchorable-toc"><code>addAttributes</code></h3>
+  <span class="args">
+    (data, record)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_addAttributes">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L390">packages/ember-data/lib/system/serializer.js:390</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use to change how attributes are added to the serialized
+representation of a record.</p>
+
+<p>By default, <code>addAttributes</code> simply loops over all of the attributes of the
+passed record, maps the attribute name to the key for the serialized form,
+and invokes any registered transforms on the value. It then invokes the
+more granular <code>addAttribute</code> with the key and transformed value.</p>
+
+<p>Since you can override <code>keyForAttributeName</code>, <code>addAttribute</code>, and register
+custom transforms, you should rarely need to override this hook.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>data</strong> <span class="type">Any</span></dt>
+          <dd>the serialized representation that is being built</dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd>the record to serialize</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_addBelongsTo" class="method inherited item-entry">
+  <h3 data-id="method_addBelongsTo" class="name anchorable-toc"><code>addBelongsTo</code></h3>
+  <span class="args">
+    (data, record, key, relationship)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_addBelongsTo">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L493">packages/ember-data/lib/system/serializer.js:493</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use to add a <code>belongsTo</code> relationship to the
+serialized representation.</p>
+
+<p>The specifics of this hook are very adapter-specific, so there
+is no default implementation. You can see <code>DS.JSONSerializer</code>
+for an example of an implementation of the <code>addBelongsTo</code> hook.</p>
+
+<p>The <code>belongsTo</code> relationship object has the following properties:</p>
+
+<ul>
+<li><strong>type</strong> a subclass of DS.Model that is the type of the
+relationship. This is the first parameter to DS.belongsTo</li>
+<li><strong>options</strong> the options passed to the call to DS.belongsTo</li>
+<li><strong>kind</strong> always <code>belongsTo</code></li>
+</ul>
+
+<p>Additional properties may be added in the future.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>data</strong> <span class="type">Any</span></dt>
+          <dd>the serialized representation that is being built</dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd>the record to serialize</dd>
+        
+          <dt><strong>key</strong> <span class="type">String</span></dt>
+          <dd>the key for the serialized object</dd>
+        
+          <dt><strong>relationship</strong> <span class="type">Object</span></dt>
+          <dd>an object representing the relationship</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_addHasMany" class="method inherited item-entry">
+  <h3 data-id="method_addHasMany" class="name anchorable-toc"><code>addHasMany</code></h3>
+  <span class="args">
+    (data, record, key, relationship)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_addHasMany">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L518">packages/ember-data/lib/system/serializer.js:518</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use to add a <code>hasMany</code> relationship to the
+serialized representation.</p>
+
+<p>The specifics of this hook are very adapter-specific, so there
+is no default implementation. You may not need to implement this,
+for example, if your backend only expects relationships on the
+child of a one to many relationship.</p>
+
+<p>The <code>hasMany</code> relationship object has the following properties:</p>
+
+<ul>
+<li><strong>type</strong> a subclass of DS.Model that is the type of the
+relationship. This is the first parameter to DS.hasMany</li>
+<li><strong>options</strong> the options passed to the call to DS.hasMany</li>
+<li><strong>kind</strong> always <code>hasMany</code></li>
+</ul>
+
+<p>Additional properties may be added in the future.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>data</strong> <span class="type">Any</span></dt>
+          <dd>the serialized representation that is being built</dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd>the record to serialize</dd>
+        
+          <dt><strong>key</strong> <span class="type">String</span></dt>
+          <dd>the key for the serialized object</dd>
+        
+          <dt><strong>relationship</strong> <span class="type">Object</span></dt>
+          <dd>an object representing the relationship</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_addId" class="method inherited item-entry">
+  <h3 data-id="method_addId" class="name anchorable-toc"><code>addId</code></h3>
+  <span class="args">
+    (data, key, id)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_addId">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L423">packages/ember-data/lib/system/serializer.js:423</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use to customize how the record&#39;s id is added to
+the serialized data.</p>
+
+<p>The <code>addId</code> hook is called with:</p>
+
+<ul>
+<li>the serialized representation being built</li>
+<li>the resolved primary key (taking configurations and the
+<code>primaryKey</code> hook into consideration)</li>
+<li>the serialized id (after calling the <code>serializeId</code> hook)</li>
+</ul>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>data</strong> <span class="type">Any</span></dt>
+          <dd>the serialized representation that is being built</dd>
+        
+          <dt><strong>key</strong> <span class="type">String</span></dt>
+          <dd>the resolved primary key</dd>
+        
+          <dt><strong>id</strong> <span class="type">Id</span></dt>
+          <dd>the serialized id</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_addRelationships" class="method inherited item-entry">
+  <h3 data-id="method_addRelationships" class="name anchorable-toc"><code>addRelationships</code></h3>
+  <span class="args">
+    (data, record)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_addRelationships">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L467">packages/ember-data/lib/system/serializer.js:467</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use to change how relationships are added to the serialized
+representation of a record.</p>
+
+<p>By default, <code>addRelationships</code> loops over all of the relationships of the
+passed record, maps the relationship names to the key for the serialized form,
+and then invokes the public <code>addBelongsTo</code> and <code>addHasMany</code> hooks.</p>
+
+<p>Since you can override <code>keyForBelongsTo</code>, <code>keyForHasMany</code>, <code>addBelongsTo</code>,
+<code>addHasMany</code>, and register mappings, you should rarely need to override this
+hook.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>data</strong> <span class="type">Any</span></dt>
+          <dd>the serialized representation that is being built</dd>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd>the record to serialize</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_addType" class="method inherited item-entry">
+  <h3 data-id="method_addType" class="name anchorable-toc"><code>addType</code></h3>
+  <span class="args">
+    (data, type)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_addType">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L441">packages/ember-data/lib/system/serializer.js:441</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use to customize how the record&#39;s type is added to
+the serialized data.</p>
+
+<p>The <code>addType</code> hook is called with:</p>
+
+<ul>
+<li>the serialized representation being built</li>
+<li>the serialized id (after calling the <code>serializeId</code> hook)</li>
+</ul>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>data</strong> <span class="type">Any</span></dt>
+          <dd>the serialized representation that is being built</dd>
+        
+          <dt><strong>type</strong> <span class="type">DS.Model subclass</span></dt>
+          <dd>the type of the record</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_createSerializedForm" class="method inherited item-entry">
+  <h3 data-id="method_createSerializedForm" class="name anchorable-toc"><code>createSerializedForm</code></h3>
+
+  <span class="type">Object</span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_createSerializedForm">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L456">packages/ember-data/lib/system/serializer.js:456</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>Creates an empty hash that will be filled in by the hooks called from the
+<code>serialize()</code> method.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">Object</span>
+        <dd> </dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_extractEmbeddedType" class="method inherited item-entry">
+  <h3 data-id="method_extractEmbeddedType" class="name anchorable-toc"><code>extractEmbeddedType</code></h3>
+  <span class="args">
+    (relationship, data)
+  </span>
+
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_extractEmbeddedType">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L289">packages/ember-data/lib/system/serializer.js:289</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use to customize how the record&#39;s type is extracted from
+the serialized data.</p>
+
+<p>The <code>extractEmbeddedType</code> hook is called with:</p>
+
+<ul>
+<li>the serialized representation being built</li>
+<li>the serialized id (after calling the <code>serializeId</code> hook)</li>
+</ul>
+
+<p>By default, it returns the type of the relationship.</p>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>relationship</strong> <span class="type">Object</span></dt>
+          <dd>an object representing the relationship</dd>
+        
+          <dt><strong>data</strong> <span class="type">Any</span></dt>
+          <dd>the serialized representation that is being built</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+</div>
+
+      
+        
+<div id="method_keyForAttributeName" class="method inherited item-entry">
+  <h3 data-id="method_keyForAttributeName" class="name anchorable-toc"><code>keyForAttributeName</code></h3>
+  <span class="args">
+    (type, name)
+  </span>
+
+  <span class="type">String</span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_keyForAttributeName">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L559">packages/ember-data/lib/system/serializer.js:559</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use in your serializer subclass to customize
+how an unmapped attribute name is converted into a key.</p>
+
+<p>By default, this method returns the <code>name</code> parameter.</p>
+
+<p>For example, if the attribute names in your JSON are underscored,
+you will want to convert them into JavaScript conventional
+camelcase:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+5
+6
+7
+</pre></td>
+  <td class="code"><pre>App.MySerializer = DS.Serializer.extend({
+  <span class="comment">// ...</span>
+
+  <span class="function">keyForAttributeName</span>: <span class="keyword">function</span>(type, name) {
+    <span class="keyword">return</span> name.camelize();
+  }
+});
+</pre></td>
+</tr></table>
+</div>
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>type</strong> <span class="type">DS.Model subclass</span></dt>
+          <dd>the type of the record with
+  the attribute name `name`</dd>
+        
+          <dt><strong>name</strong> <span class="type">String</span></dt>
+          <dd>the attribute name to convert into a key</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">String</span>
+        <dd> the key</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_keyForBelongsTo" class="method inherited item-entry">
+  <h3 data-id="method_keyForBelongsTo" class="name anchorable-toc"><code>keyForBelongsTo</code></h3>
+  <span class="args">
+    (type, name)
+  </span>
+
+  <span class="type">String</span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_keyForBelongsTo">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L633">packages/ember-data/lib/system/serializer.js:633</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use in your serializer subclass to customize
+how an unmapped <code>belongsTo</code> relationship is converted into
+a key.</p>
+
+<p>By default, this method calls <code>keyForAttributeName</code>, so if
+your naming convention is uniform across attributes and
+relationships, you can use the default here and override
+just <code>keyForAttributeName</code> as needed.</p>
+
+<p>For example, if the <code>belongsTo</code> names in your JSON always
+begin with <code>BT_</code> (e.g. <code>BT_posts</code>), you can strip out the
+<code>BT_</code> prefix:&quot;</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+5
+6
+</pre></td>
+  <td class="code"><pre>App.MySerializer = DS.Serializer.extend({
+  <span class="comment">// ...</span>
+  <span class="function">keyForBelongsTo</span>: <span class="keyword">function</span>(type, name) {
+    <span class="keyword">return</span> name.match(<span class="regexp"><span class="delimiter">/</span><span class="content">^BT_(.*)$</span><span class="delimiter">/</span></span>)[<span class="integer">1</span>].camelize();
+  }
+});
+</pre></td>
+</tr></table>
+</div>
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>type</strong> <span class="type">DS.Model subclass</span></dt>
+          <dd>the type of the record with
+  the `belongsTo` relationship.</dd>
+        
+          <dt><strong>name</strong> <span class="type">String</span></dt>
+          <dd>the relationship name to convert into a key</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">String</span>
+        <dd> the key</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_keyForHasMany" class="method inherited item-entry">
+  <h3 data-id="method_keyForHasMany" class="name anchorable-toc"><code>keyForHasMany</code></h3>
+  <span class="args">
+    (type, name)
+  </span>
+
+  <span class="type">String</span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_keyForHasMany">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L667">packages/ember-data/lib/system/serializer.js:667</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use in your serializer subclass to customize
+how an unmapped <code>hasMany</code> relationship is converted into
+a key.</p>
+
+<p>By default, this method calls <code>keyForAttributeName</code>, so if
+your naming convention is uniform across attributes and
+relationships, you can use the default here and override
+just <code>keyForAttributeName</code> as needed.</p>
+
+<p>For example, if the <code>hasMany</code> names in your JSON always
+begin with the &quot;table name&quot; for the current type (e.g.
+<code>post_comments</code>), you can strip out the prefix:&quot;</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+<strong>10</strong>
+11
+12
+13
+14
+</pre></td>
+  <td class="code"><pre>App.MySerializer = DS.Serializer.extend({
+  <span class="comment">// ...</span>
+  <span class="function">keyForHasMany</span>: <span class="keyword">function</span>(type, name) {
+    <span class="comment">// if your App.BlogPost has many App.BlogComment, the key from</span>
+    <span class="comment">// the server would look like: `blog_post_blog_comments`</span>
+    <span class="comment">//</span>
+    <span class="comment">// 1. Convert the type into a string and underscore the</span>
+    <span class="comment">//    second part (App.BlogPost -&gt; blog_post)</span>
+    <span class="comment">// 2. Extract the part after `blog_post_` (`blog_comments`)</span>
+    <span class="comment">// 3. Underscore it, to become `blogComments`</span>
+    <span class="keyword">var</span> typeString = type.toString().split(<span class="string"><span class="delimiter">&quot;</span><span class="content">.</span><span class="delimiter">&quot;</span></span>)[<span class="integer">1</span>].underscore();
+    <span class="keyword">return</span> name.match(<span class="keyword">new</span> RegExp(<span class="string"><span class="delimiter">&quot;</span><span class="content">^</span><span class="delimiter">&quot;</span></span> + typeString + <span class="string"><span class="delimiter">&quot;</span><span class="content">_(.*)$</span><span class="delimiter">&quot;</span></span>))[<span class="integer">1</span>].camelize();
+  }
+});
+</pre></td>
+</tr></table>
+</div>
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>type</strong> <span class="type">DS.Model subclass</span></dt>
+          <dd>the type of the record with
+  the `belongsTo` relationship.</dd>
+        
+          <dt><strong>name</strong> <span class="type">String</span></dt>
+          <dd>the relationship name to convert into a key</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">String</span>
+        <dd> the key</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_primaryKey" class="method inherited item-entry">
+  <h3 data-id="method_primaryKey" class="name anchorable-toc"><code>primaryKey</code></h3>
+  <span class="args">
+    (type)
+  </span>
+
+  <span class="type">String</span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_primaryKey">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L590">packages/ember-data/lib/system/serializer.js:590</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>A hook you can use in your serializer to specify a conventional
+primary key.</p>
+
+<p>By default, this method will return the string <code>id</code>.</p>
+
+<p>In general, you should not override this hook to specify a special
+primary key for an individual type; use <code>configure</code> instead.</p>
+
+<p>For example, if your primary key is always <code>__id__</code>:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+5
+6
+</pre></td>
+  <td class="code"><pre>App.MySerializer = DS.Serializer.extend({
+  <span class="comment">// ...</span>
+  <span class="function">primaryKey</span>: <span class="keyword">function</span>(type) {
+    <span class="keyword">return</span> <span class="string"><span class="delimiter">'</span><span class="content">__id__</span><span class="delimiter">'</span></span>;
+  }
+});
+</pre></td>
+</tr></table>
+</div>
+<p>In another example, if the primary key always includes the
+underscored version of the type before the string <code>id</code>:</p>
+<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td>
+  <td class="code"><pre>App.MySerializer = DS.Serializer.extend({
+  <span class="comment">// ...</span>
+  <span class="function">primaryKey</span>: <span class="keyword">function</span>(type) {
+    <span class="comment">// If the type is `BlogPost`, this will return</span>
+    <span class="comment">// `blog_post_id`.</span>
+    <span class="keyword">var</span> typeString = type.toString().split(<span class="string"><span class="delimiter">&quot;</span><span class="content">.</span><span class="delimiter">&quot;</span></span>)[<span class="integer">1</span>].underscore();
+    <span class="keyword">return</span> typeString + <span class="string"><span class="delimiter">&quot;</span><span class="content">_id</span><span class="delimiter">&quot;</span></span>;
+  }
+});
+</pre></td>
+</tr></table>
+</div>
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>type</strong> <span class="type">DS.Model subclass</span></dt>
+          <dd></dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">String</span>
+        <dd> the primary key for the type</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_serialize" class="method inherited item-entry">
+  <h3 data-id="method_serialize" class="name anchorable-toc"><code>serialize</code></h3>
+  <span class="args">
+    (record, options)
+  </span>
+
+  <span class="type">Any</span>
+
+
+
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_serialize">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L312">packages/ember-data/lib/system/serializer.js:312</a>
+
+    
+
+    
+  </div>
+
+  
+    <div class="description">
+      <p>The main entry point for serializing a record. While you can consider this
+a hook that can be overridden in your serializer, you will have to manually
+handle serialization. For most cases, there are more granular hooks that you
+can override.</p>
+
+<p>If overriding this method, these are the responsibilities that you will need
+to implement yourself:</p>
+
+<ul>
+<li>If the option hash contains <code>includeId</code>, add the record&#39;s ID to the serialized form.
+By default, <code>serialize</code> calls <code>addId</code> if appropriate.</li>
+<li>If the option hash contains <code>includeType</code>, add the record&#39;s type to the serialized form.</li>
+<li>Add the record&#39;s attributes to the serialized form. By default, <code>serialize</code> calls
+<code>addAttributes</code>.</li>
+<li>Add the record&#39;s relationships to the serialized form. By default, <code>serialize</code> calls
+<code>addRelationships</code>.</li>
+</ul>
+
+    </div>
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>record</strong> <span class="type"><a href="/api/data/classes/DS.Model.html">DS.Model</a></span></dt>
+          <dd>the record to serialize</dd>
+        
+          <dt><strong>options</strong> <span class="type">Object</span></dt>
+          <dd>a hash of options</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">Any</span>
+        <dd> the serialized form of the record</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+        
+<div id="method_serializeValue" class="method private inherited item-entry">
+  <h3 data-id="method_serializeValue" class="name anchorable-toc"><code>serializeValue</code></h3>
+  <span class="args">
+    (value, attributeType)
+  </span>
+
+  <span class="type">Any</span>
+
+
+
+  <span class="flag private">private</span>
+
+
+
+
+
+  <div class="meta">
+      
+        
+          Inherited from
+          <a href="/api/data/classes/DS.Serializer.html#method_serializeValue">DS.Serializer</a>
+        
+      
+      <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/serializer.js#L355">packages/ember-data/lib/system/serializer.js:355</a>
+
+    
+
+    
+  </div>
+
+  
+
+  <p>
+    
+  </p>
+
+  
+
+  
+    <div class="params">
+      <h3>Parameters:</h3>
+
+      <dl>
+        
+          <dt><strong>value</strong> <span class="type">Any</span></dt>
+          <dd>the value to convert to the serialized form</dd>
+        
+          <dt><strong>attributeType</strong> <span class="type">String</span></dt>
+          <dd>the registered type (e.g. `string`
+  or `boolean`)</dd>
+        
+      </dl>
+    </div>
+  
+
+  
+    <div class="return">
+      <h3>Returns:</h3>
+      <dl>
+        <dt><span class="type">Any</span>
+        <dd> the serialized form of the value</dd>
+      </dl>
+    </div>
+  
+</div>
+
+      
+    </div>
+  
+  </div>
+
+
+      </div>
+    </div>
+
+    <div id="footer">
+      <div id="footer-wrapper">
+        <div class="info">
+          Copyright 2013 <a href="http://tilde.io">Tilde Inc.</a><br>
+          Design by <a href="http://www.heropixel.com">HeroPixel</a></br>
+          <a href="/team">Core Team</a> | <a href="/sponsors">Project Sponsors</a>
+        </div>
+        <div class="statement">Ember.js is free, open source and always will be.</div>
+        <div class="links">
+          <a class="twitter" href="http://twitter.com/emberjs">Twitter</a>
+          <a class="github" href="https://github.com/emberjs/ember.js">GitHub</a>
+          <a class="googleplus" href="https://plus.google.com/communities/106387049790387471205">Google+</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
