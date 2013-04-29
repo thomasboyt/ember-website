@@ -195,7 +195,7 @@
         <div id="sidebar">
           
     <ol id='toc-list'>
-      <li class='level-1'><a href="https://github.com/emberjs/data/commit/30d9148" target="_blank"> Tag: 30d9148</a></li>
+      <li class='level-1'><a href="https://github.com/emberjs/data/commit/308b13e" target="_blank"> Tag: 308b13e</a></li>
 
       
           <li class="level-1 selected">
@@ -307,6 +307,14 @@
         
           <ol class="">
           
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.html">DS</a>
+            
+          </li>
+        
           
             
           <li class="level-3 ">
@@ -479,30 +487,45 @@
 
 
 <p><p>The store contains all of the data for records loaded from the server.
-It is also responsible for creating instances of DS.Model that wraps
+It is also responsible for creating instances of DS.Model that wrap
 the individual data for a record, so that they can be bound to in your
 Handlebars templates.</p>
 
-<p>Create a new store like this:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<p>Define your application&#39;s store like this:</p>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 </pre></td>
-  <td class="code"><pre> MyApp.store = DS.Store.create();
+  <td class="code"><pre> MyApp.Store = DS.Store.extend();
 </pre></td>
 </tr></table>
-</div>
-<p>You can retrieve DS.Model instances from the store in several ways. To retrieve
-a record for a specific id, use the <code>find()</code> method:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+</div></div>
+<p>Most Ember.js applications will only have a single <code>DS.Store</code> that is
+automatically created by their <code>Ember.Application</code>.</p>
+
+<p>You can retrieve models from the store in several ways. To retrieve a record
+for a specific id, use <code>DS.Model</code>&#39;s <code>find()</code> method:</p>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 </pre></td>
-  <td class="code"><pre> <span class="keyword">var</span> record = MyApp.store.find(MyApp.Contact, <span class="integer">123</span>);
+  <td class="code"><pre> <span class="keyword">var</span> person = App.Person.find(<span class="integer">123</span>);
 </pre></td>
 </tr></table>
-</div>
+</div></div>
+<p>If your application has multiple <code>DS.Store</code> instances (an unusual case), you can
+specify which store should be used:</p>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
+  <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
+</pre></td>
+  <td class="code"><pre><span class="keyword">var</span> person = store.find(App.Person, <span class="integer">123</span>);
+</pre></td>
+</tr></table>
+</div></div>
+<p>In general, you should retrieve models using the methods on <code>DS.Model</code>; you should
+rarely need to interact with the store directly.</p>
+
 <p>By default, the store will talk to your backend using a standard REST mechanism.
- You can customize how the store talks to your backend by specifying a custom adapter:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+You can customize how the store talks to your backend by specifying a custom adapter:</p>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 3
@@ -512,7 +535,7 @@ a record for a specific id, use the <code>find()</code> method:</p>
  });
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>You can learn more about writing a custom adapter by reading the <code>DS.Adapter</code>
 documentation.</p>
 </p>

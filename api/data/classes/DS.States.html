@@ -195,7 +195,7 @@
         <div id="sidebar">
           
     <ol id='toc-list'>
-      <li class='level-1'><a href="https://github.com/emberjs/data/commit/30d9148" target="_blank"> Tag: 30d9148</a></li>
+      <li class='level-1'><a href="https://github.com/emberjs/data/commit/308b13e" target="_blank"> Tag: 308b13e</a></li>
 
       
           <li class="level-1 ">
@@ -307,6 +307,14 @@
         
           <ol class="">
           
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.html">DS</a>
+            
+          </li>
+        
           
             
           <li class="level-3 ">
@@ -484,7 +492,7 @@
   
 
   
-    <p>Defined in: <a class="api-file-link" href="https://github.com/emberjs/data/tree/30d9148/packages/ember-data/lib/system/model/states.js#L9">packages/ember-data/lib/system/model/states.js:9</a></p>
+    <p>Defined in: <a class="api-file-link" href="https://github.com/emberjs/data/tree/308b13e/packages/ember-data/lib/system/model/states.js#L9">packages/ember-data/lib/system/model/states.js:9</a></p>
   
 
   
@@ -518,7 +526,7 @@ will attempt to invoke the event on all parent states until the root state is
 reached. The state hierarchy of a record is described in terms of a path
 string. You can determine a record&#39;s current state by getting its manager&#39;s
 current state path:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 </pre></td>
@@ -526,7 +534,7 @@ current state path:</p>
 <span class="comment">//=&gt; &quot;created.uncommitted&quot;</span>
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>The <code>DS.Model</code> states are themselves stateless. What we mean is that,
 though each instance of a record also has a unique instance of a
 <code>DS.StateManager</code>, the hierarchical states that each of <em>those</em> points
@@ -542,7 +550,7 @@ state about the record if needed; you should never store data on the state
 object itself. If you need access to the record being acted on, you can
 retrieve the state manager&#39;s <code>record</code> property. For example, if you had
 an event handler <code>myEvent</code>:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 3
@@ -554,7 +562,7 @@ an event handler <code>myEvent</code>:</p>
 }
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>For more information about state managers in general, see the Ember.js
 documentation on <code>Ember.StateManager</code>.</p>
 
@@ -573,7 +581,7 @@ an exception will be raised. This can be very helpful when debugging new
 features.</p>
 
 <p>Here&#39;s an example implementation of a state with a <code>myEvent</code> event handler:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 3
@@ -587,9 +595,9 @@ features.</p>
 })
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>To trigger this event:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 </pre></td>
@@ -597,7 +605,7 @@ features.</p>
 <span class="comment">//=&gt; &quot;Received myEvent with foo&quot;</span>
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>Note that an optional parameter can be sent to a record&#39;s <code>send()</code> method,
 which will be passed as the second parameter to the event handler.</p>
 
@@ -608,7 +616,7 @@ relative to the current state. If no state is found at that path, it will
 attempt to resolve it relative to the current state&#39;s parent, and then its
 parent, and so on until the root is reached. For example, imagine a hierarchy
 like this:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 3
@@ -622,7 +630,7 @@ like this:</p>
   * inFlight
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>If we are currently in the <code>start</code> state, calling
 <code>transitionTo(&#39;inFlight&#39;)</code> would transition to the <code>created.inFlight</code> state,
 while calling <code>transitionTo(&#39;updated.inFlight&#39;)</code> would transition to
@@ -637,7 +645,7 @@ tempted to do so, create a new event and send that to the state manager.</p>
 <p>Flags are Boolean values that can be used to introspect a record&#39;s current
 state in a more user-friendly way than examining its state path. For example,
 instead of doing this:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 3
@@ -649,9 +657,9 @@ instead of doing this:</p>
 }
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>You can say:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 3
@@ -661,7 +669,7 @@ instead of doing this:</p>
 }
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>If your state does not set a value for a given flag, the value will
 be inherited from its parent (or the first place in the state hierarchy
 where it is defined).</p>
@@ -675,7 +683,7 @@ in addition to the area below, you will also need to declare it in the
 <p>Transitions are like event handlers but are called automatically upon
 entering or exiting a state. To implement a transition, just call a method
 either <code>enter</code> or <code>exit</code>:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 3
@@ -693,7 +701,7 @@ either <code>enter</code> or <code>exit</code>:</p>
 })
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>Note that enter and exit events are called once per transition. If the
 current state changes, but changes to another child state of the parent,
 the transition event on the parent will not be triggered.</p>

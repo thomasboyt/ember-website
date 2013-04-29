@@ -1,0 +1,871 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Ember Blog</title>
+  <subtitle>Ember News and Updates</subtitle>
+  <id>http://emberjs.com/blog</id>
+  <link href="http://emberjs.com/blog"/>
+  <link href="http://emberjs.com/blog/feed.xml" rel="self"/>
+  <updated>2013-04-21T00:00:00Z</updated>
+  <author>
+    <name>Ember</name>
+  </author>
+  <entry>
+    <title>Ember 1.0 RC3</title>
+    <link rel="alternate" href="/blog/2013/04/21/ember-1-0-rc3.html"/>
+    <id>/blog/2013/04/21/ember-1-0-rc3.html</id>
+    <published>2013-04-21T00:00:00Z</published>
+    <updated>2013-04-21T00:00:00Z</updated>
+    <author>
+      <name>Ember</name>
+    </author>
+    <summary type="html">&lt;p&gt;Today we are announcing the third Release Candidate of Ember 1.0.
+As we said when we released RC1, all releases until 1.0 is final
+will be about bugfixes and improvements, and should not have any
+breaking changes.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_performance'&gt;Performance&lt;/h3&gt;
+&lt;p&gt;Since RC2, a series of performance improvements have landed.&lt;/p&gt;
+</summary>
+    <content type="html">&lt;p&gt;Today we are announcing the third Release Candidate of Ember 1.0.
+As we said when we released RC1, all releases until 1.0 is final
+will be about bugfixes and improvements, and should not have any
+breaking changes.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_performance'&gt;Performance&lt;/h3&gt;
+&lt;p&gt;Since RC2, a series of performance improvements have landed.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;When adjacent child views are scheduled for insertion they are
+are now batched together, and inserted together rather then one at
+a time.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Object deletion is now async, this prevents un-needed churn when destroying
+large interconnected object graphs.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The number of objects allocated during view rendering has been cut down.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The ongoing performance effort is being championed 
+by Erik Bryn and Kris Selden.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_testing'&gt;Testing&lt;/h3&gt;
+&lt;p&gt;There have been many fixes and improvements to App#reset, which should now
+correctly clear application state when invoked. Typically this is only used
+for integration tests.&lt;/p&gt;
+&lt;div class="highlight javascript "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;&lt;span class="comment"&gt;// before each integration test&lt;/span&gt;
+App.reset();
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Please Note: &lt;code&gt;App.reset()&lt;/code&gt; now brings its own run loop, and no longer
+needs to be wrapped in one.&lt;/p&gt;
+
+&lt;p&gt;Initial work on a new &lt;a href="https://github.com/emberjs/ember.js/tree/master/packages/ember-testing"&gt;ember-testing package&lt;/a&gt;
+has begun. The goal of this project is to make testing Ember applications easier,
+especially when it comes to testing asynchrony. As this effort matures, expect full
+documentation, examples and guides.&lt;/p&gt;
+
+&lt;p&gt;Props to Erik Bryn for researching integration testing approaches by many community
+members, including Jo Liss and Katie Gengler, and spearheading initial work on what
+will be our official library.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_ember-builds'&gt;Ember Builds&lt;/h3&gt;
+&lt;p&gt;Each successful &lt;a href="https://travis-ci.org/emberjs/ember.js"&gt;CI&lt;/a&gt; run now publishes its build results to
+&lt;a href="http://builds.emberjs.com/"&gt;http://builds.emberjs.com/&lt;/a&gt;. This should make
+it much simpler to reference and use the &lt;a href="http://builds.emberjs.com/ember-latest.js"&gt;the latest ember build&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Thanks to Stanley Stuart, Luke Melia, Erik Bryn and others for getting this set up.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_new-input-and-textarea-helpers'&gt;New Input and TextArea helpers&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;TextField&lt;/code&gt;, &lt;code&gt;TextArea&lt;/code&gt; and &lt;code&gt;Checkbox&lt;/code&gt; views now have corresponding handlebars helpers.&lt;/p&gt;
+&lt;div class="highlight handlebars "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;  &lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{&lt;/span&gt;&lt;span class="attribute-name"&gt;view&lt;/span&gt; &lt;span class="attribute-name"&gt;Ember.TextField&lt;/span&gt; &lt;span class="attribute-name"&gt;valueBinding&lt;/span&gt;=&lt;span class="string"&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;span class="content"&gt;name&lt;/span&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{&lt;/span&gt;&lt;span class="attribute-name"&gt;view&lt;/span&gt; &lt;span class="attribute-name"&gt;Ember.Checkbox&lt;/span&gt;  &lt;span class="attribute-name"&gt;checkedBinding&lt;/span&gt;=&lt;span class="string"&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;span class="content"&gt;isActive&lt;/span&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{&lt;/span&gt;&lt;span class="attribute-name"&gt;view&lt;/span&gt; &lt;span class="attribute-name"&gt;Ember.TextArea&lt;/span&gt;  &lt;span class="attribute-name"&gt;valueBinding&lt;/span&gt;=&lt;span class="string"&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;span class="content"&gt;name&lt;/span&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;can now be expressed as:&lt;/p&gt;
+&lt;div class="highlight handlebars "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;  &lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{&lt;/span&gt;&lt;span class="attribute-name"&gt;input&lt;/span&gt; &lt;span class="attribute-name"&gt;value&lt;/span&gt;=&lt;span class="attribute-value"&gt;name&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{&lt;/span&gt;&lt;span class="attribute-name"&gt;input&lt;/span&gt; &lt;span class="attribute-name"&gt;type&lt;/span&gt;=&lt;span class="attribute-value"&gt;checkbox&lt;/span&gt; &lt;span class="attribute-name"&gt;checked&lt;/span&gt;=&lt;span class="attribute-value"&gt;isActive&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{&lt;/span&gt;&lt;span class="attribute-name"&gt;textarea&lt;/span&gt; &lt;span class="attribute-name"&gt;value&lt;/span&gt;=&lt;span class="attribute-value"&gt;name&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;We recommend using the &amp;quot;dynamic tag&amp;quot; forms rather than the &lt;code&gt;{{view}}&lt;/code&gt; forms because
+they are equivalent to the static tags that we all know and love.&lt;/p&gt;
+
+&lt;p&gt;Note that when using dynamic tags, you do not need to use a &lt;code&gt;Binding&lt;/code&gt; suffix and
+must leave out the quotation marks around the values. Ember will interpret quoted
+strings as static strings in this context.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_documentation'&gt;Documentation&lt;/h3&gt;
+&lt;p&gt;The API docs have been refined and filled in by more community members
+than we can mention here. Thank you everyone for helping out!&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_changelog'&gt;Changelog&lt;/h3&gt;
+&lt;p&gt;The full &lt;a href="https://github.com/emberjs/ember.js/blob/v1.0.0-rc.3/CHANGELOG"&gt;CHANGELOG&lt;/a&gt; is available on Github, as always.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Announcing the Ember.js Security Policy</title>
+    <link rel="alternate" href="/blog/2013/04/05/announcing-the-ember-security-policy.html"/>
+    <id>/blog/2013/04/05/announcing-the-ember-security-policy.html</id>
+    <published>2013-04-05T00:00:00Z</published>
+    <updated>2013-04-05T00:00:00Z</updated>
+    <author>
+      <name>Ember</name>
+    </author>
+    <summary type="html">&lt;p&gt;We know that building your apps on top of a framework requires
+trust, and that trust is never put to the test more than when security
+vulnerabilities are discovered.&lt;/p&gt;
+
+&lt;p&gt;While we&amp;#39;re very fortunate to work on an open source project that runs
+in a sandboxed environment, the browser, we realize that even JavaScript&lt;/p&gt;
+</summary>
+    <content type="html">&lt;p&gt;We know that building your apps on top of a framework requires
+trust, and that trust is never put to the test more than when security
+vulnerabilities are discovered.&lt;/p&gt;
+
+&lt;p&gt;While we&amp;#39;re very fortunate to work on an open source project that runs
+in a sandboxed environment, the browser, we realize that even JavaScript
+applications can be vulnerable to attacks from malicious third-parties.&lt;/p&gt;
+
+&lt;p&gt;Ember.js is designed to mitigate common forms of attack. For example,
+all values rendered using Handlebars are automatically escaped to
+prevent XSS attacks, and developers must explicitly opt in to outputting
+raw HTML.&lt;/p&gt;
+
+&lt;p&gt;To ensure that Ember applications stay safe, today we&amp;#39;re announcing the
+&lt;a href="/security"&gt;Ember.js Security Policy&lt;/a&gt;, to help security researchers and
+developers responsibly disclose potential vulnerabilities in Ember and
+Ember Data.&lt;/p&gt;
+
+&lt;p&gt;We have also set up the &lt;a href="https://groups.google.com/forum/#!forum/ember-security"&gt;Ember.js security announcements mailing
+list&lt;/a&gt;. This is
+an extremely low-traffic mailing list reserved solely for announcing
+security releases of the framework. If you&amp;#39;re deploying Ember to
+production, you or your security team may wish to subscribe.&lt;/p&gt;
+
+&lt;p&gt;To be clear, there are no vulnerabilities we&amp;#39;re aware of at this time
+and there is not a security release forthcoming. We just take security
+extremely seriously and believe that having a procedure in place ahead of
+time will allow us to respond most effectively should the
+worst happen.&lt;/p&gt;
+
+&lt;p&gt;If you have any questions or concerns that are not addressed by the new
+security policy, please email us at
+&lt;a href="mailto:security@emberjs.com"&gt;security@emberjs.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I&amp;#39;d like to thank the Ruby on Rails security team, from whom our
+security policy was lifted almost wholesale, for serving as a role model
+for open source projects everywhere.&lt;/p&gt;
+
+&lt;p&gt;Lastly, my personal thanks to &lt;a href="https://twitter.com/tenderlove"&gt;Aaron &amp;quot;tenderlove&amp;quot;
+Patterson&lt;/a&gt; and &lt;a href="https://twitter.com/bascule"&gt;Tony &amp;quot;bascule&amp;quot;
+Arcieri&lt;/a&gt; for reviewing our policy and
+answering many of my ignorant questions.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;#39;s stay safe out there.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Ember 1.0 RC2</title>
+    <link rel="alternate" href="/blog/2013/03/30/ember-1-0-rc2.html"/>
+    <id>/blog/2013/03/30/ember-1-0-rc2.html</id>
+    <published>2013-03-30T00:00:00Z</published>
+    <updated>2013-03-30T00:00:00Z</updated>
+    <author>
+      <name>Ember</name>
+    </author>
+    <summary type="html">&lt;p&gt;Today, we&amp;#39;re releasing the second Release Candidate of Ember 1.0.
+As we said when we released RC1, the next few releases will be
+about bugfixes and improvements, and should not have any breaking
+changes.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_namespace-lookup-for-controllers'&gt;Namespace Lookup for Controllers&lt;/h3&gt;
+&lt;p&gt;It is now possible to look up controllers that are included in a&lt;/p&gt;
+</summary>
+    <content type="html">&lt;p&gt;Today, we&amp;#39;re releasing the second Release Candidate of Ember 1.0.
+As we said when we released RC1, the next few releases will be
+about bugfixes and improvements, and should not have any breaking
+changes.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_namespace-lookup-for-controllers'&gt;Namespace Lookup for Controllers&lt;/h3&gt;
+&lt;p&gt;It is now possible to look up controllers that are included in a
+namespace other than the main application namespace.&lt;/p&gt;
+
+&lt;p&gt;For example, when using the render helper:&lt;/p&gt;
+&lt;div class="highlight handlebars "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;&lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{&lt;/span&gt;&lt;span class="attribute-name"&gt;render&lt;/span&gt; &lt;span class="error"&gt;'&lt;/span&gt;&lt;span class="attribute-name"&gt;posts&lt;/span&gt;&lt;span class="error"&gt;'&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;This will render the &lt;code&gt;posts&lt;/code&gt; template with the controller &lt;code&gt;App.PostsController&lt;/code&gt;, where &lt;code&gt;App&lt;/code&gt; is the main application namespace.&lt;/p&gt;
+
+&lt;p&gt;If you want to use an alternative namespace, you can use a
+&lt;code&gt;/&lt;/code&gt;-separated path.&lt;/p&gt;
+&lt;div class="highlight handlebars "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;&lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{&lt;/span&gt;&lt;span class="attribute-name"&gt;render&lt;/span&gt; &lt;span class="error"&gt;'&lt;/span&gt;&lt;span class="attribute-name"&gt;blog&lt;/span&gt;&lt;span class="error"&gt;/&lt;/span&gt;&lt;span class="attribute-name"&gt;posts&lt;/span&gt;&lt;span class="error"&gt;'&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;This will render the &lt;code&gt;blog/posts&lt;/code&gt; template with the controller
+&lt;code&gt;Blog.PostsController&lt;/code&gt;.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_using-render-with-multiple-models'&gt;Using Render With Multiple Models&lt;/h3&gt;
+&lt;p&gt;In RC1, you could use &lt;code&gt;{{render &amp;#39;posts&amp;#39;}}&lt;/code&gt; to render the &lt;code&gt;posts&lt;/code&gt;
+template using the app&amp;#39;s instance of &lt;code&gt;App.PostsController&lt;/code&gt;. Using
+&lt;code&gt;render&lt;/code&gt; in this way will always render the template using the same
+singleton controller.&lt;/p&gt;
+
+&lt;p&gt;In RC2, we are adding the ability to render a template with a
+particular model: &lt;code&gt;{{render &amp;#39;post&amp;#39; post}}&lt;/code&gt;. When you supply a model,
+Ember.js will create a new instance of the &lt;code&gt;App.PostController&lt;/code&gt; each
+time it is used.&lt;/p&gt;
+
+&lt;p&gt;This allows you to use &lt;code&gt;{{render}}&lt;/code&gt; in a loop:&lt;/p&gt;
+&lt;div class="highlight handlebars "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;&lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{#&lt;/span&gt;&lt;span class="attribute-name"&gt;each&lt;/span&gt; &lt;span class="attribute-name"&gt;post&lt;/span&gt; &lt;span class="attribute-name"&gt;in&lt;/span&gt; &lt;span class="attribute-name"&gt;posts&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{&lt;/span&gt;&lt;span class="attribute-name"&gt;render&lt;/span&gt; &lt;span class="error"&gt;'&lt;/span&gt;&lt;span class="attribute-name"&gt;post&lt;/span&gt;&lt;span class="error"&gt;'&lt;/span&gt; &lt;span class="attribute-name"&gt;post&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+&lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{/&lt;/span&gt;&lt;span class="attribute-name"&gt;each&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;h3 class='anchorable-toc' id='toc_unwrapping-an-code-objectcontroller-code-s-model'&gt;Unwrapping an &lt;code&gt;ObjectController&lt;/code&gt;&amp;#39;s Model&lt;/h3&gt;
+&lt;p&gt;When passing an &lt;code&gt;ObjectController&lt;/code&gt; as a parameter to the &lt;code&gt;action&lt;/code&gt;
+or &lt;code&gt;linkTo&lt;/code&gt; helpers, Ember now unwraps the underlying model and 
+passes it through.&lt;/p&gt;
+
+&lt;p&gt;Most importantly, this allows you to add an &lt;code&gt;itemController&lt;/code&gt; to
+&lt;code&gt;{{#each}}&lt;/code&gt; without affecting action handlers in your controller
+or router.&lt;/p&gt;
+
+&lt;p&gt;If you have a template like this:&lt;/p&gt;
+&lt;div class="highlight handlebars "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+7
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;&lt;span class="comment"&gt;&amp;lt;!-- posts.handlebars --&amp;gt;&lt;/span&gt;
+
+&lt;span class="tag"&gt;&amp;lt;ul&amp;gt;&lt;/span&gt;
+&lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{#&lt;/span&gt;&lt;span class="attribute-name"&gt;each&lt;/span&gt; &lt;span class="attribute-name"&gt;controller&lt;/span&gt; &lt;span class="attribute-name"&gt;itemController&lt;/span&gt;=&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;postItem&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+  &lt;span class="tag"&gt;&amp;lt;li&amp;gt;&lt;/span&gt;&lt;span class="tag"&gt;&amp;lt;button&lt;/span&gt; &lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{&lt;/span&gt;&lt;span class="attribute-name"&gt;action&lt;/span&gt; &lt;span class="attribute-name"&gt;selectPost&lt;/span&gt; &lt;span class="attribute-name"&gt;this&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;&lt;span class="tag"&gt;&amp;gt;&lt;/span&gt;&lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{&lt;/span&gt;&lt;span class="attribute-name"&gt;name&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;&lt;span class="tag"&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;&lt;span class="tag"&gt;&amp;lt;/li&amp;gt;&lt;/span&gt;
+&lt;span class="inline"&gt;&lt;span class="inline-delimiter"&gt;{{/&lt;/span&gt;&lt;span class="attribute-name"&gt;each&lt;/span&gt;&lt;span class="inline-delimiter"&gt;}}&lt;/span&gt;&lt;/span&gt;
+&lt;span class="tag"&gt;&amp;lt;/ul&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Your &lt;code&gt;App.PostsController&lt;/code&gt; would look like this:&lt;/p&gt;
+&lt;div class="highlight javascript "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;App.PostsController = Ember.ArrayController.extend({
+  &lt;span class="key"&gt;needs&lt;/span&gt;: &lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;currentPost&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;,
+
+  &lt;span class="function"&gt;selectPost&lt;/span&gt;: &lt;span class="keyword"&gt;function&lt;/span&gt;(post) {
+    &lt;span class="comment"&gt;// `post` here is an `App.Post`, not an&lt;/span&gt;
+    &lt;span class="comment"&gt;// `App.PostItemController`&lt;/span&gt;
+    &lt;span class="local-variable"&gt;this&lt;/span&gt;.set(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;controllers.currentPost.model&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;, post);
+  }
+});
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;This should make using &lt;code&gt;itemController&lt;/code&gt; less gotcha-prone.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_support-for-jquery-2-0'&gt;Support for jQuery 2.0&lt;/h3&gt;
+&lt;p&gt;Ember 1.0 RC2 supports &lt;a href="http://blog.jquery.com/2013/03/01/jquery-2-0-beta-2-released/"&gt;jQuery 2.0&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;This allows you to use a smaller, optimized build for newer browsers
+that is fully compatible with Ember.&lt;/p&gt;
+
+&lt;p&gt;If you&amp;#39;re targeting both older IE and modern browsers, you can use
+the following snippet to get the best of both worlds:&lt;/p&gt;
+&lt;div class="highlight html "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;&lt;span class="comment"&gt;&amp;lt;!--[if lt IE 9]&amp;gt;
+    &amp;lt;script src=&amp;quot;jquery-1.9.1.js&amp;quot;&amp;gt;&amp;lt;/script&amp;gt;
+&amp;lt;![endif]--&amp;gt;&lt;/span&gt;
+&lt;span class="comment"&gt;&amp;lt;!--[if gte IE 9]&amp;gt;&amp;lt;!--&amp;gt;&lt;/span&gt;
+    &lt;span class="tag"&gt;&amp;lt;script&lt;/span&gt; &lt;span class="attribute-name"&gt;src&lt;/span&gt;=&lt;span class="string"&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;span class="content"&gt;jquery-2.0.0.js&lt;/span&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;span class="tag"&gt;&amp;gt;&lt;/span&gt;&lt;span class="tag"&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;span class="comment"&gt;&amp;lt;!--&amp;lt;![endif]--&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Because jQuery 1.9 and 2.0 are API-compatible, this strategy will
+allow you to target the widest range of browsers, but ship a
+smaller build for modern browsers.&lt;/p&gt;
+
+&lt;p&gt;The future is here!&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_changelog'&gt;Changelog&lt;/h3&gt;
+&lt;p&gt;The full &lt;a href="https://github.com/emberjs/ember.js/blob/7e012d9e7f4c5e5b7ce6e60307aac7cd653df5b9/CHANGELOG#L1"&gt;CHANGELOG&lt;/a&gt; is available on Github, as always.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Stabilizing Ember Data</title>
+    <link rel="alternate" href="/blog/2013/03/22/stabilizing-ember-data.html"/>
+    <id>/blog/2013/03/22/stabilizing-ember-data.html</id>
+    <published>2013-03-22T00:00:00Z</published>
+    <updated>2013-03-22T00:00:00Z</updated>
+    <author>
+      <name>Ember</name>
+    </author>
+    <summary type="html">&lt;p&gt;Yesterday, we gave you an update on our progress making Ember.js easier
+to use. One thing we didn&amp;#39;t discuss was our plan for Ember Data.&lt;/p&gt;
+
+&lt;p&gt;It&amp;#39;s no secret that, while many developers are building awesome apps
+with Ember.js, Ember Data still causes lots of frustration due to bugs&lt;/p&gt;
+</summary>
+    <content type="html">&lt;p&gt;Yesterday, we gave you an update on our progress making Ember.js easier
+to use. One thing we didn&amp;#39;t discuss was our plan for Ember Data.&lt;/p&gt;
+
+&lt;p&gt;It&amp;#39;s no secret that, while many developers are building awesome apps
+with Ember.js, Ember Data still causes lots of frustration due to bugs
+and a changing, complex API. Documentation about it is also mixed in
+with Ember.js documentation, making it difficult for new developers to
+understand what is stable and what is not.&lt;/p&gt;
+
+&lt;p&gt;To be clear, Ember Data is not a dependency of Ember.js.
+&lt;a href="https://github.com/discourse/discourse"&gt;Discourse&lt;/a&gt;, for example, uses
+its own, simple wrapper around
+&lt;a href="https://github.com/discourse/discourse/blob/master/app/assets/javascripts/discourse/models/model.js"&gt;&lt;code&gt;$.ajax&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Even though Ember Data is not a dependency of Ember.js, loading data
+from the server is an extremely important part of most web applications,
+and it&amp;#39;s a problem that every Ember.js application will have to deal
+with.&lt;/p&gt;
+
+&lt;p&gt;Our long-term goal is simple: we don&amp;#39;t think most web developers should
+have to write any custom XHR code for loading data. Strong conventions
+on the client and strong conventions on the server should allow them to
+communicate automatically.&lt;/p&gt;
+
+&lt;p&gt;We know we&amp;#39;re not there yet.&lt;/p&gt;
+
+&lt;p&gt;In order for this to work, there are many necessary features that must
+be rock-solid across all sorts of different persistence layers—local
+storage, relational databases, and key-value stores, to name a few. To
+top it off, the asynchronous environment of the browser (with an often
+unreliable internet connection) adds significant complexity, and means
+we can&amp;#39;t simply port the solutions to these problems that have been
+pioneered on the server.&lt;/p&gt;
+
+&lt;p&gt;Getting all of these features working well together is a challenging
+problem, and we have not been able to deliver everything we thought we
+could in a reasonable amount of time.&lt;/p&gt;
+
+&lt;p&gt;Additionally, many developers are writing web applications that need to
+consume an existing JSON API that evolved organically and is not
+consistently named or structured. The API we have provided so far is
+suboptimal for this task.&lt;/p&gt;
+
+&lt;p&gt;To make the experience of writing an Ember Data application less
+frustrating, we&amp;#39;re doing two things:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;We&amp;#39;re identifying a subset of features that already work reliably.&lt;/li&gt;
+&lt;li&gt;We&amp;#39;re introducing a new, simpler API for working with remote data
+that makes fewer assumptions. You still get to use the model API
+in Ember Data, but can &amp;quot;bring your own &lt;code&gt;$.ajax&lt;/code&gt;&amp;quot; to load and store
+records.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Right now, what gets documented is somewhat ad-hoc. Going forward, we
+will heavily document the stable features. Finding documentation about
+an Ember Data feature on the emberjs.com website will be your indication
+that we consider it stable and safe to use.&lt;/p&gt;
+
+&lt;p&gt;Over time, after we have put new features through their paces and
+written extensive documentation, the set of stable features will grow.
+In other words, we are refocusing on a small core of practical features,
+which we will slowly iterate towards our long-term, ambitious goal.&lt;/p&gt;
+&lt;h2 class='anchorable-toc' id='toc_the-basic-adapter'&gt;The Basic Adapter&lt;/h2&gt;
+&lt;p&gt;The Ember Data adapter layer, which is responsible for finding and
+saving records, is currently designed to make it easy to build reusable
+adapters, like the ones people have written for
+&lt;a href="https://github.com/clintjhill/ember-parse-adapter"&gt;Parse&lt;/a&gt; or
+&lt;a href="https://github.com/pangratz/ember-couchdb-adapter"&gt;CouchDB&lt;/a&gt;. It is not
+well-suited for delegating out to &lt;code&gt;$.ajax&lt;/code&gt; to work with an API
+that is not 100% consistent.&lt;/p&gt;
+
+&lt;p&gt;To make it easier to use Ember Data with any kind of JSON data, we
+are introducing the Basic Adapter, which simply delegates to a &lt;code&gt;sync&lt;/code&gt;
+object on your model.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;#39;s look at an example of using the Basic Adapter with the Twitter API.&lt;/p&gt;
+
+&lt;p&gt;First, note that the syntax for defining a model hasn&amp;#39;t changed
+(historically, this has been one of the most stable parts of Ember
+Data):&lt;/p&gt;
+&lt;div class="highlight javascript "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;strong&gt;10&lt;/strong&gt;
+11
+12
+13
+14
+15
+16
+17
+18
+19
+&lt;strong&gt;20&lt;/strong&gt;
+21
+22
+23
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;&lt;span class="keyword"&gt;var&lt;/span&gt; attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
+
+App.User = DS.Model.extend({
+  &lt;span class="key"&gt;defaultProfileImage&lt;/span&gt;: attr(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;boolean&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+  &lt;span class="key"&gt;description&lt;/span&gt;: attr(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;string&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+  &lt;span class="key"&gt;screenName&lt;/span&gt;: attr(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;string&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+  &lt;span class="key"&gt;isVerified&lt;/span&gt;: attr(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;boolean&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+  &lt;span class="key"&gt;createdAt&lt;/span&gt;: attr(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;date&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+
+  &lt;span class="key"&gt;tweets&lt;/span&gt;: hasMany(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;App.Tweet&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;)
+});
+
+App.Tweet = DS.Model.extend({
+  &lt;span class="key"&gt;coordinates&lt;/span&gt;: attr(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;point&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+  &lt;span class="key"&gt;createdAt&lt;/span&gt;: attr(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;date&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+  &lt;span class="key"&gt;isFavorited&lt;/span&gt;: attr(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;boolean&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+  &lt;span class="key"&gt;retweetCount&lt;/span&gt;: attr(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;number&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+  &lt;span class="key"&gt;text&lt;/span&gt;: attr(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;string&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+  &lt;span class="key"&gt;isTruncated&lt;/span&gt;: attr(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;boolean&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+
+  &lt;span class="key"&gt;replyTo&lt;/span&gt;: belongsTo(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;App.User&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;),
+  &lt;span class="key"&gt;user&lt;/span&gt;: belongsTo(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;App.User&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;)
+});
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Finding records also hasn&amp;#39;t changed:&lt;/p&gt;
+&lt;div class="highlight javascript "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;&lt;span class="comment"&gt;// use the Promise API&lt;/span&gt;
+App.User.find(userId).then(&lt;span class="keyword"&gt;function&lt;/span&gt;(user) {
+  &lt;span class="keyword"&gt;return&lt;/span&gt; user.get(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;tweets&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;);
+}).then(&lt;span class="keyword"&gt;function&lt;/span&gt;(tweets) {
+  &lt;span class="comment"&gt;// do something with `tweets`&lt;/span&gt;
+});
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;When you request the &lt;code&gt;User&lt;/code&gt; and then its &lt;code&gt;tweets&lt;/code&gt;, Ember Data will make
+calls to your models&amp;#39; &lt;code&gt;sync&lt;/code&gt; object.&lt;/p&gt;
+&lt;div class="highlight javascript "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;strong&gt;10&lt;/strong&gt;
+11
+12
+13
+14
+15
+16
+17
+18
+19
+&lt;strong&gt;20&lt;/strong&gt;
+21
+22
+23
+24
+25
+26
+27
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;App.User.sync = {
+  &lt;span class="function"&gt;find&lt;/span&gt;: &lt;span class="keyword"&gt;function&lt;/span&gt;(id, process) {
+    &lt;span class="predefined"&gt;$&lt;/span&gt;.getJSON(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;span class="content"&gt;/users/show&lt;/span&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;, { &lt;span class="key"&gt;screen_name&lt;/span&gt;: id }).then(&lt;span class="keyword"&gt;function&lt;/span&gt;(user) {        
+      process(user)                 
+        .primaryKey(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;screen_name&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;)
+        .camelizeKeys()
+        .applyTransforms(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;twitter&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;)
+        .load();
+    });
+  },
+
+  &lt;span class="function"&gt;findTweets&lt;/span&gt;: &lt;span class="keyword"&gt;function&lt;/span&gt;(user, name, process) {
+    &lt;span class="keyword"&gt;var&lt;/span&gt; screenName = user.get(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;id&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;);
+
+    &lt;span class="predefined"&gt;$&lt;/span&gt;.getJSON(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;span class="content"&gt;/statuses/user_timeline&lt;/span&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;, { &lt;span class="key"&gt;screen_name&lt;/span&gt;: screenName }).then(&lt;span class="keyword"&gt;function&lt;/span&gt;(timeline) {
+      process(timeline)
+        .primaryKey(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;id_str&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;)
+        .camelizeKeys()
+        .applyTransforms(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;twitter&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;)
+        .munge(&lt;span class="keyword"&gt;function&lt;/span&gt;(json) {
+          json.isTruncated = json.truncated;
+          json.replyTo = json.inReplyToScreenName;
+        })
+        .load();
+    });
+  }
+};
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;As you can see, in each of the hooks on the &lt;code&gt;sync&lt;/code&gt; object, the last
+argument passed in is a function called &lt;code&gt;process&lt;/code&gt;. You use this function to
+load JSON data returned from the XHR into the store. It also includes
+several conveniences for common transformations, like camelizing
+property names and transforming values like dates.&lt;/p&gt;
+
+&lt;p&gt;Of course, you are not required to use these conveniences. You can write
+whatever imperative code you&amp;#39;d like to transform the JSON returned from
+the server into the form that Ember Data is expecting. Here is the above
+example re-written without using the chained conveniences.&lt;/p&gt;
+&lt;div class="highlight javascript "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;strong&gt;10&lt;/strong&gt;
+11
+12
+13
+14
+15
+16
+17
+18
+19
+&lt;strong&gt;20&lt;/strong&gt;
+21
+22
+23
+24
+25
+26
+27
+28
+29
+&lt;strong&gt;30&lt;/strong&gt;
+31
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;&lt;span class="function"&gt;findTweets&lt;/span&gt;: &lt;span class="keyword"&gt;function&lt;/span&gt;(user, name, process) {
+  &lt;span class="keyword"&gt;var&lt;/span&gt; screenName = user.get(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;id&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;);
+
+  &lt;span class="predefined"&gt;$&lt;/span&gt;.getJSON(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;span class="content"&gt;/statuses/user_timeline&lt;/span&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;, { &lt;span class="key"&gt;screen_name&lt;/span&gt;: screenName }).then(&lt;span class="keyword"&gt;function&lt;/span&gt;(timeline) {
+    &lt;span class="keyword"&gt;var&lt;/span&gt; tweets = timeline.map(&lt;span class="keyword"&gt;function&lt;/span&gt;(json) {
+      &lt;span class="comment"&gt;// Map primary key&lt;/span&gt;
+      json.id = json.id_str;
+
+      &lt;span class="comment"&gt;// Camelize property names&lt;/span&gt;
+      &lt;span class="keyword"&gt;for&lt;/span&gt; (&lt;span class="keyword"&gt;var&lt;/span&gt; prop &lt;span class="keyword"&gt;in&lt;/span&gt; json) {
+        &lt;span class="keyword"&gt;var&lt;/span&gt; value = json[prop];
+        &lt;span class="keyword"&gt;delete&lt;/span&gt; json[prop];
+        json[camelize(prop)] = value;
+      }
+
+      &lt;span class="comment"&gt;// Convert string-formatted date to object&lt;/span&gt;
+      json.createdAt = Date.parse(json.createdAt);
+
+      &lt;span class="comment"&gt;// Convert hash to JavaScript object&lt;/span&gt;
+      json.coordinates = &lt;span class="keyword"&gt;new&lt;/span&gt; Twitter.Point(json.coordinates);
+
+      &lt;span class="comment"&gt;// Rename properties&lt;/span&gt;
+      json.isTruncated = json.truncated;
+      json.replyTo = json.inReplyToScreenName;
+
+      &lt;span class="keyword"&gt;return&lt;/span&gt; json;
+    });
+
+    process(tweets).load();
+  });
+}
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;h2 class='anchorable-toc' id='toc_timeline'&gt;Timeline&lt;/h2&gt;
+&lt;p&gt;We have been working on this new API part-time for the past few weeks.
+You can see our progress on Ember Data&amp;#39;s master branch, by looking at
+&lt;a href="https://github.com/emberjs/data/tree/master/packages/ember-data/tests/integration/adapters/basic_adapter"&gt;the tests&lt;/a&gt; or &lt;a href="https://github.com/emberjs/data/blob/master/packages/ember-data/lib/adapters/basic_adapter.js"&gt;the implementation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Over the next few weeks, we will be writing documentation that will be
+available in the &lt;a href="http://emberjs.com/guides/"&gt;Ember.js Guides&lt;/a&gt;. Once a
+few people have had the opportunity to use the Basic Adapter and
+sanity-check our work, we will start cutting beta releases of Ember
+Data. We think that this will be a lot easier for new developers than &amp;quot;make
+a build from master.&amp;quot;&lt;/p&gt;
+
+&lt;p&gt;Our thanks go out to &lt;a href="http://mcdowall.info"&gt;John McDowall&lt;/a&gt;, who has been
+tracking our progress on Basic Adapter and writing documentation to go
+with it.&lt;/p&gt;
+
+&lt;p&gt;Finally, we&amp;#39;d like to give a big thanks to
+&lt;a href="https://addepar.com/"&gt;Addepar&lt;/a&gt; for financially supporting us
+while we do this work. They are big users of and contributors to Ember
+Data, and we couldn&amp;#39;t do it without them.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Making Ember.js Easier</title>
+    <link rel="alternate" href="/blog/2013/03/21/making-ember-easier.html"/>
+    <id>/blog/2013/03/21/making-ember-easier.html</id>
+    <published>2013-03-21T00:00:00Z</published>
+    <updated>2013-03-21T00:00:00Z</updated>
+    <author>
+      <name>Ember</name>
+    </author>
+    <summary type="html">&lt;p&gt;We frequently receive feedback from new developers about how frustrating
+it can be to get started with Ember. Yesterday, one of the &lt;a href="https://news.ycombinator.com/item?id=5406857"&gt;most active
+comment threads on Hacker
+News&lt;/a&gt; was largely about just that.&lt;/p&gt;
+</summary>
+    <content type="html">&lt;p&gt;We frequently receive feedback from new developers about how frustrating
+it can be to get started with Ember. Yesterday, one of the &lt;a href="https://news.ycombinator.com/item?id=5406857"&gt;most active
+comment threads on Hacker
+News&lt;/a&gt; was largely about just that.&lt;/p&gt;
+
+&lt;p&gt;We hear you loud and clear. Ember.js is not easy to get started with, and we take that very seriously. We are all working nights and weekends to make the framework as approachable as humanly possible.&lt;/p&gt;
+
+&lt;p&gt;One of the Hacker News commenters, kanja, nailed it. In response to another commenter who felt like the negative reaction was strong:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;It&amp;#39;s incredibly out of proportion - but people really want to use ember (because it promises all these great things!) and they&amp;#39;re frustrated by the docs (because they&amp;#39;re not really good for first time users) so this is kind of a flash point.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Absolutely right. Ember promises—and, we think, delivers—tremendous value. But ramping up to that point is not easy, and we received this feedback repeatedly and take it very seriously.&lt;/p&gt;
+
+&lt;p&gt;There was another common sentiment that we&amp;#39;d like to address:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I have seen this sort of attitude from quite a few domain experts - if you didn&amp;#39;t get it, you aren&amp;#39;t smart enough and &amp;quot;don&amp;#39;t deserve to be in our group.&amp;quot;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;That does not reflect our feelings at all. If people find it difficult to use the tools we&amp;#39;ve created, that&amp;#39;s a failure on our part. Period.&lt;/p&gt;
+
+&lt;p&gt;To keep things in perspective, we froze the Ember 1.0 API a mere month ago, when we released the first 1.0 RC. Before that, we were focused on iterating the API based on feedback we received from our early adopters. We believe that our willingness to change the API allowed us to build a better product than our competitors that locked in their first attempts. But that also means that much of the effort that people put into writing tutorials and documentation, including our own, quickly became obsolete.&lt;/p&gt;
+
+&lt;p&gt;Thankfully, that period is over. As we said in our &lt;a href="https://www.youtube.com/watch?feature=player_detailpage&amp;amp;v=RYAD2arvysU#t=229s"&gt;EmberCamp keynote&lt;/a&gt;, our focus now is on stability and building the ecosystem.&lt;/p&gt;
+
+&lt;p&gt;Since EmberCamp, momentum has been incredible. We&amp;#39;ve seen the amount of material helping new users grow quickly.&lt;/p&gt;
+
+&lt;p&gt;To call out a few of the big ones:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://peepcode.com/products/emberjs"&gt;Fire Up Ember.js PeepCode&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://railscasts.com/episodes/408-ember-part-1"&gt;Ember RailsCast&lt;/a&gt; (and &lt;a href="http://railscasts.com/episodes/410-ember-part-2"&gt;Part 2&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.toranbillups.com/blog/archive/2013/03/02/emberjs-rc1-introduction-screencast/"&gt;RC1 Introduction Screencast&lt;/a&gt; by Toran Billups&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://net.tutsplus.com/tutorials/javascript-ajax/getting-into-ember-js/"&gt;NetTuts&amp;#39; Getting into Ember.js series&lt;/a&gt; by Rey Bango&lt;/li&gt;
+&lt;li&gt;The guides on the Ember.js website have been dramatically expanded&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Additionally, great open source examples built on top of RC1 are out in the wild, like &lt;a href="https://github.com/addyosmani/todomvc/tree/gh-pages/architecture-examples/emberjs"&gt;TodoMVC&lt;/a&gt; and the &amp;quot;Big Kahuna,&amp;quot; &lt;a href="https://github.com/discourse/discourse"&gt;Discourse&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;We&amp;#39;ve also been working on tooling to make the process of developing Ember.js apps easier. For example, &lt;a href="https://github.com/rpflorence/ember-tools"&gt;Ryan Florence&amp;#39;s ember-tools&lt;/a&gt; significantly improves bootstrapping a new project, and the &lt;a href="https://github.com/tildeio/ember-extension"&gt;Ember Inspector plugin for Chrome&lt;/a&gt; (which we &lt;a href="https://www.youtube.com/watch?feature=player_detailpage&amp;amp;v=RYAD2arvysU#t=1924s"&gt;demoed at EmberCamp&lt;/a&gt;) should make debugging and understanding apps much easier.&lt;/p&gt;
+
+&lt;p&gt;But we know that these things aren&amp;#39;t enough. Here are the specific steps we will be taking to improve the experience for developers getting started:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;We&amp;#39;re actively working on a Getting Started Guide with live examples that walks the user through building a new application from scratch&lt;/li&gt;
+&lt;li&gt;We&amp;#39;re writing the script for a short screencast introducing the framework and illustrating how it works that will be prominently displayed on the homepage.&lt;/li&gt;
+&lt;li&gt;We&amp;#39;re continuing to improve our guides to talk through areas, like the naming conventions we use in Ember, that might be confusing for new developers.&lt;/li&gt;
+&lt;li&gt;The Starter Kit will return, giving developers a one-click way to try out Ember. (We removed it temporarily to bring it up to date with the most recent idioms, but it will be coming back very soon. This was a hard decision, but leaving around an out of date starter kit seemed worse than removing it.)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We also understand that there are some features in Ember.js that consistently trip up developers new to the framework. The Handlebars &lt;code&gt;{{bindAttr}}&lt;/code&gt; helper is a good example. We focus relentlessly on identifying and fixing these issues; you can see the start of an effort to improve this in the work that Yehuda has been doing on &lt;a href="http://github.com/tildeio/htmlbars"&gt;htmlbars&lt;/a&gt;, which will hopefully land in Ember 1.1.&lt;/p&gt;
+
+&lt;p&gt;We&amp;#39;d like to give a big thank you to all of the contributors who have helped make Ember so successful. We believe that a truly community-backed open source project is important. Although it takes time to build that community, versus being able to hire a full-time staff, we believe that in the long run it leads to a stronger, more robust project that can&amp;#39;t be &amp;quot;Google Reader&amp;#39;d.&amp;quot; Immunity to any one company going under or pulling support is baked right in.&lt;/p&gt;
+
+&lt;p&gt;Lastly, we&amp;#39;d love your help. If you think there&amp;#39;s something we&amp;#39;re missing, or if you&amp;#39;d like to volunteer to help, please let us know in &lt;a href="http://discuss.emberjs.com/t/ideas-for-improving-the-getting-started-experience/666"&gt;this Discourse thread&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;All the best,&lt;br&gt;
+Yehuda Katz &amp;amp; Tom Dale&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Ember 1.0 RC</title>
+    <link rel="alternate" href="/blog/2013/02/15/ember-1-0-rc.html"/>
+    <id>/blog/2013/02/15/ember-1-0-rc.html</id>
+    <published>2013-02-15T00:00:00Z</published>
+    <updated>2013-02-15T00:00:00Z</updated>
+    <author>
+      <name>Ember</name>
+    </author>
+    <summary type="html">&lt;p&gt;Today at Ember Camp, we announced the release of Ember.js 1.0 RC1.&lt;/p&gt;
+
+&lt;p&gt;This release is all about fixing bugs from the &lt;code&gt;pre4&lt;/code&gt; release, and
+gets us that much closer to a final 1.0 release. Between this release
+and the 1.0 final, we will mostly be focusing on stability and documentation.&lt;/p&gt;
+</summary>
+    <content type="html">&lt;p&gt;Today at Ember Camp, we announced the release of Ember.js 1.0 RC1.&lt;/p&gt;
+
+&lt;p&gt;This release is all about fixing bugs from the &lt;code&gt;pre4&lt;/code&gt; release, and
+gets us that much closer to a final 1.0 release. Between this release
+and the 1.0 final, we will mostly be focusing on stability and documentation.&lt;/p&gt;
+
+&lt;p&gt;If you discover any blocking bugs or undocumented areas, please file tickets at
+the emberjs/ember.js repo on GitHub and consider helping out.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_route-replacement'&gt;Route Replacement&lt;/h3&gt;
+&lt;p&gt;You can now transition to a new route without creating an entry in the history:&lt;/p&gt;
+&lt;div class="highlight js "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;&lt;span class="comment"&gt;// instead of this, which creates a history entry&lt;/span&gt;
+router.transitionTo(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;index&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;);
+
+&lt;span class="comment"&gt;// do this&lt;/span&gt;
+router.replaceWith(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;index&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;);
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;In the &lt;code&gt;redirect&lt;/code&gt; hook, you can just use &lt;code&gt;replaceWith&lt;/code&gt; and Ember won&amp;#39;t create
+a history entry.&lt;/p&gt;
+
+&lt;p&gt;In a controller, you can use &lt;code&gt;replaceRoute&lt;/code&gt; (instead of &lt;code&gt;transitionToRoute&lt;/code&gt;)
+to do the same thing.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_item-controller'&gt;Item Controller&lt;/h3&gt;
+&lt;p&gt;If you want every item in a &lt;code&gt;{{#each}}&lt;/code&gt; to be wrapped in an &lt;code&gt;ObjectController&lt;/code&gt;,
+you can do so easily:&lt;/p&gt;
+&lt;div class="highlight js "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;{{&lt;span class="error"&gt;#&lt;/span&gt;each posts itemController=&lt;span class="string"&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;span class="content"&gt;post&lt;/span&gt;&lt;span class="delimiter"&gt;&amp;quot;&lt;/span&gt;&lt;/span&gt;}}
+  {{!-- &lt;span class="error"&gt;`&lt;/span&gt;&lt;span class="local-variable"&gt;this&lt;/span&gt;&lt;span class="error"&gt;`&lt;/span&gt; &lt;span class="keyword"&gt;in&lt;/span&gt; here is each post wrapped &lt;span class="keyword"&gt;in&lt;/span&gt; an App.PostController --}}
+{{&lt;span class="regexp"&gt;&lt;span class="delimiter"&gt;/&lt;/span&gt;&lt;span class="content"&gt;each}}
+&lt;/span&gt;&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;h3 class='anchorable-toc' id='toc_register-and-inject'&gt;Register and Inject&lt;/h3&gt;
+&lt;p&gt;Internally, Ember uses a &amp;quot;container&amp;quot; to instantiate your controllers and other
+objects.&lt;/p&gt;
+
+&lt;p&gt;As of Ember 1.0 RC1, you can use &lt;code&gt;App.register&lt;/code&gt; to override the default lookup
+for controllers and other objects. For example:&lt;/p&gt;
+&lt;div class="highlight js "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;App.register(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;controller:post&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;, Ember.ObjectController.extend());
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;In general, you should use the default naming conventions, which Ember will use
+to find objects, but you can use this API for advanced usages.&lt;/p&gt;
+
+&lt;p&gt;Similarly, you can use &lt;code&gt;App.inject&lt;/code&gt; to tell Ember to automatically inject
+objects into other Ember objects.&lt;/p&gt;
+&lt;div class="highlight js "&gt;&lt;div class="ribbon"&gt;&lt;/div&gt;&lt;div class="scroller"&gt;&lt;table class="CodeRay"&gt;&lt;tr&gt;
+  &lt;td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"&gt;&lt;pre&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;
+  &lt;td class="code"&gt;&lt;pre&gt;App.register(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;network:main&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;, App.NetworkAdapter);
+App.inject(&lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;controller&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;, &lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;network&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;, &lt;span class="string"&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;span class="content"&gt;network:main&lt;/span&gt;&lt;span class="delimiter"&gt;'&lt;/span&gt;&lt;/span&gt;);
+&lt;/pre&gt;&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;This will create a single instance of &lt;code&gt;App.NetworkAdapter&lt;/code&gt; and give it to every
+controller created over the course of building your application. Internally,
+Ember Data uses this API to give every controller the application&amp;#39;s store:&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_router-activate-and-deactivate'&gt;Router Activate and Deactivate&lt;/h3&gt;
+&lt;p&gt;Currently, many people are using the undocumented and private &lt;code&gt;enter&lt;/code&gt; and
+&lt;code&gt;exit&lt;/code&gt; hooks to run code whenever Ember activates a route handler or
+deactivates it.&lt;/p&gt;
+
+&lt;p&gt;As of Ember 1.0 RC1, there are public hooks: &lt;code&gt;activate&lt;/code&gt; and &lt;code&gt;deactivate&lt;/code&gt;. Note
+that the &lt;code&gt;activate&lt;/code&gt; hook will run only when a route handler is activated for
+the first time. If a route handler&amp;#39;s context changes, the &lt;code&gt;setupController&lt;/code&gt;
+hook will run again, but not the &lt;code&gt;activate&lt;/code&gt; hook.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_app-reset'&gt;App.reset()&lt;/h3&gt;
+&lt;p&gt;If you are trying to run integration tests with Ember, you might have noticed
+that there is no good way to reset all of an application&amp;#39;s state.&lt;/p&gt;
+
+&lt;p&gt;No more!&lt;/p&gt;
+
+&lt;p&gt;As of Ember 1.0 RC1, you can call &lt;code&gt;App.reset()&lt;/code&gt; to destroy all objects created
+for the application, and bring the application back to &lt;code&gt;/&lt;/code&gt;.&lt;/p&gt;
+&lt;h3 class='anchorable-toc' id='toc_big-list-of-changes'&gt;Big List of Changes&lt;/h3&gt;
+&lt;p&gt;Since &lt;code&gt;.pre4&lt;/code&gt;, we&amp;#39;ve added these features:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Added the ability to replace the current route without adding a history
+entry, using &lt;code&gt;router.replaceWith&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Added support for String literals in &lt;code&gt;{{action}}&lt;/code&gt; and &lt;code&gt;{{linkTo}}&lt;/code&gt; to
+differentiate between static String parameters and properties on the current
+context&lt;/li&gt;
+&lt;li&gt;Allow redirection from routes that are not the final resting route&lt;/li&gt;
+&lt;li&gt;Fix a bug where using named outlets would confuse where child templates should
+be rendered into&lt;/li&gt;
+&lt;li&gt;Add &lt;code&gt;itemController&lt;/code&gt;, which allows a &lt;code&gt;{{#each}}&lt;/code&gt; to wrap each iterated element
+in a controller that can be used to store transient state&lt;/li&gt;
+&lt;li&gt;Fix a bug involving {{else}} templates only working a single time&lt;/li&gt;
+&lt;li&gt;Add &lt;code&gt;intersection&lt;/code&gt; to &lt;code&gt;EnumerableUtils&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Added &lt;code&gt;App.register&lt;/code&gt; and &lt;code&gt;App.inject&lt;/code&gt; to control the default application&amp;#39;s
+dependency injection container&lt;/li&gt;
+&lt;li&gt;Fixes regressions in jQuery 1.9 to address changes made to .attr and .prop&lt;/li&gt;
+&lt;li&gt;Add support for &lt;code&gt;{{unbound helper}}&lt;/code&gt; where &lt;code&gt;helper&lt;/code&gt; is a custom helper
+registered via &lt;code&gt;Ember.Handlebars.registerBoundHelper&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Added &lt;code&gt;Ember.debug&lt;/code&gt; to print debug-level warnings and use it to print the
+current version of Ember and its dependencies on boot&lt;/li&gt;
+&lt;li&gt;Fix a bug where changing the model property passed to &lt;code&gt;{{render}}&lt;/code&gt; does not
+update the rendered template&lt;/li&gt;
+&lt;li&gt;Added public &lt;code&gt;activate&lt;/code&gt; and &lt;code&gt;deactivate&lt;/code&gt; hooks in the router. If you were
+using the private &lt;code&gt;enter&lt;/code&gt; and &lt;code&gt;exit&lt;/code&gt; methods, please switch!&lt;/li&gt;
+&lt;li&gt;Added &lt;code&gt;Application#reset&lt;/code&gt; to help with integration tests&lt;/li&gt;
+&lt;li&gt;Several fixes for the Ember Inspector&lt;/li&gt;
+&lt;li&gt;Many bug and performance fixes&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;You can see the full changelog at &lt;a href="https://github.com/emberjs/ember.js/blob/master/CHANGELOG"&gt;the official CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+</content>
+  </entry>
+</feed>

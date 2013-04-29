@@ -195,7 +195,7 @@
         <div id="sidebar">
           
     <ol id='toc-list'>
-      <li class='level-1'><a href="https://github.com/emberjs/data/commit/30d9148" target="_blank"> Tag: 30d9148</a></li>
+      <li class='level-1'><a href="https://github.com/emberjs/data/commit/308b13e" target="_blank"> Tag: 308b13e</a></li>
 
       
           <li class="level-1 selected">
@@ -307,6 +307,14 @@
         
           <ol class="">
           
+          
+            
+          <li class="level-3 ">
+          
+              <a href="/api/data/classes/DS.html">DS</a>
+            
+          </li>
+        
           
             
           <li class="level-3 ">
@@ -523,7 +531,7 @@ versions into their serialized versions via a declarative API.</p>
 <p>One of the most common uses of the serializer is to map attribute names
 from the serialized form to your <code>DS.Model</code>. For example, in your model,
 you may have an attribute called <code>firstName</code>:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 3
@@ -533,13 +541,13 @@ you may have an attribute called <code>firstName</code>:</p>
 });
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>However, because the web API your adapter is communicating with is
 legacy, it calls this attribute <code>FIRST_NAME</code>.</p>
 
 <p>You can determine the attribute name used in the serialized form
 by implementing <code>keyForAttributeName</code>:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 3
@@ -549,10 +557,10 @@ by implementing <code>keyForAttributeName</code>:</p>
 }
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>If your attribute names are not predictable, you can re-map them
 one-by-one using the adapter&#39;s <code>map</code> API:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 3
@@ -562,10 +570,10 @@ one-by-one using the adapter&#39;s <code>map</code> API:</p>
 });
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <p>This API will also work for relationships and primary keys. For
 example:</p>
-<div class="highlight javascript "><div class="ribbon"></div><table class="CodeRay"><tr>
+<div class="highlight javascript "><div class="ribbon"></div><div class="scroller"><table class="CodeRay"><tr>
   <td class="line-numbers" title="double click to toggle" ondblclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1
 2
 3
@@ -575,7 +583,7 @@ example:</p>
 });
 </pre></td>
 </tr></table>
-</div>
+</div></div>
 <h2>Serialization</h2>
 
 <p>During the serialization process, a record or records are converted
